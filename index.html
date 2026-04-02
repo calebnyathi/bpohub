@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BPO Hub — AI-Powered BPO Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f2eb;
+    --accent: #d4521a;
+    --accent2: #1a6dd4;
+    --muted: #6b6760;
+    --border: rgba(10,10,10,0.12);
+    --card-bg: #fff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 4rem;
+    background: rgba(245,242,235,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; letter-spacing: -0.03em; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { font-size: 0.9rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    background: var(--ink); color: var(--paper);
+    padding: 0.6rem 1.4rem; border-radius: 100px;
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.4rem 1rem;
+    font-size: 0.8rem; color: var(--muted);
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero h1 .stroke {
+    -webkit-text-stroke: 2px var(--ink);
+    color: transparent;
+  }
+  .hero p {
+    max-width: 560px;
+    font-size: 1.15rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-btns {
+    display: flex; gap: 1rem; align-items: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+    padding: 0.85rem 2rem; border-radius: 100px;
+    font-size: 1rem; font-weight: 500; text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-2px); }
+  .btn-secondary {
+    color: var(--ink); font-size: 0.95rem; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    border-bottom: 1px solid var(--border); padding-bottom: 2px;
+    transition: border-color 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--ink); }
+  .hero-stats {
+    display: flex; gap: 3rem; margin-top: 4rem;
+    padding-top: 2rem; border-top: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .stat-item { text-align: left; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  /* FLOATING CARDS */
+  .hero-visual {
+    position: absolute; right: -60px; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 12px;
+    opacity: 0.15; pointer-events: none;
+  }
+  .float-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 0.75rem 1rem;
+    font-size: 0.75rem; white-space: nowrap;
+    animation: float 4s ease-in-out infinite;
+  }
+  .float-card:nth-child(2) { animation-delay: -1.3s; }
+  .float-card:nth-child(3) { animation-delay: -2.6s; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  /* MARQUEE */
+  .marquee-wrap { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1rem 0; background: var(--ink); color: var(--paper); }
+  .marquee { display: flex; gap: 3rem; animation: marquee 20s linear infinite; white-space: nowrap; }
+  .marquee span { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
+  .marquee span.accent { color: var(--accent); opacity: 1; }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* SECTIONS */
+  section { padding: 6rem 4rem; max-width: 1200px; margin: 0 auto; }
+  .section-tag { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1rem; }
+  .section-sub { font-size: 1.05rem; color: var(--muted); line-height: 1.7; max-width: 520px; }
+
+  /* FEATURES */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-top: 3rem; }
+  .feature-item { background: var(--card-bg); padding: 2rem; }
+  .feature-num { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; }
+  .feature-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--paper); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.2rem; }
+  .feature-item h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .feature-item p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+  /* HOW IT WORKS */
+  .how-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-top: 3rem; }
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 1.5rem; padding: 1.5rem 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .step:last-child { border-bottom: none; }
+  .step-num { font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--muted); width: 24px; flex-shrink: 0; padding-top: 2px; }
+  .step-content h4 { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 0.25rem; }
+  .step-content p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+  .step-visual { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; min-height: 300px; display: flex; align-items: center; justify-content: center; }
+  .mock-proposal { width: 100%; }
+  .mock-line { height: 10px; background: var(--paper); border-radius: 100px; margin-bottom: 10px; }
+  .mock-line.short { width: 60%; }
+  .mock-line.med { width: 80%; }
+  .mock-line.accent { background: var(--accent); opacity: 0.3; width: 40%; }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+  .pricing-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; position: relative; }
+  .pricing-card.featured { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .pricing-card.featured .price-period, .pricing-card.featured .price-desc, .pricing-card.featured .plan-feature { color: rgba(245,242,235,0.6); }
+  .pricing-card.featured .plan-feature::before { border-color: rgba(245,242,235,0.3); }
+  .featured-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; }
+  .plan-name { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .price { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; line-height: 1; }
+  .price-period { font-size: 0.85rem; color: var(--muted); margin-top: 4px; margin-bottom: 1.5rem; }
+  .price-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+  .plan-features { list-style: none; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .plan-feature { font-size: 0.875rem; display: flex; align-items: center; gap: 8px; }
+  .plan-feature::before { content: ''; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border); flex-shrink: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8l3.5 3.5L13 5' stroke='%23d4521a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat; }
+  .pricing-card.featured .plan-feature::before { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8l3.5 3.5L13 5' stroke='%23f5f2eb' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat; border-color: rgba(245,242,235,0.2); }
+  .plan-btn { display: block; text-align: center; padding: 0.8rem; border-radius: 100px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+  .plan-btn-dark { background: var(--ink); color: var(--paper); }
+  .plan-btn-dark:hover { background: var(--accent); }
+  .plan-btn-light { background: var(--paper); color: var(--ink); }
+  .plan-btn-light:hover { background: #e8e4dc; }
+  .plan-btn-outline { border: 1px solid var(--border); color: var(--ink); background: transparent; }
+  .plan-btn-outline:hover { background: var(--paper); }
+
+  /* TESTIMONIALS */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+  .testimonial { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; }
+  .t-stars { color: var(--accent); font-size: 0.9rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .t-text { font-size: 0.95rem; line-height: 1.7; color: var(--ink); margin-bottom: 1.25rem; }
+  .t-author { display: flex; align-items: center; gap: 10px; }
+  .t-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; }
+  .t-name { font-size: 0.875rem; font-weight: 500; }
+  .t-handle { font-size: 0.8rem; color: var(--muted); }
+
+  /* CTA */
+  .cta-section { text-align: center; background: var(--ink); color: var(--paper); border-radius: 24px; padding: 6rem 4rem; margin: 2rem; }
+  .cta-section .section-title { color: var(--paper); }
+  .cta-section p { color: rgba(245,242,235,0.6); margin: 1rem auto 2.5rem; max-width: 480px; font-size: 1.05rem; line-height: 1.7; }
+  .cta-btn { background: var(--accent); color: #fff; padding: 1rem 2.5rem; border-radius: 100px; font-size: 1rem; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, background 0.2s; }
+  .cta-btn:hover { transform: translateY(-2px); background: #b8421a; }
+
+  /* FOOTER */
+  footer { padding: 3rem 4rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; }
+  .footer-logo span { color: var(--accent); }
+  .footer-links { display: flex; gap: 2rem; }
+  .footer-links a { font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+  .footer-links a:hover { color: var(--ink); }
+  .footer-copy { font-size: 0.8rem; color: var(--muted); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .features-grid { grid-template-columns: 1fr; }
+    .how-wrap { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .cta-section { margin: 1rem; padding: 4rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">BPO<span>Hub</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="app.html" class="nav-cta">Launch app →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag"><span class="dot"></span> AI-powered BPO platform — built for operators</div>
+  <h1>Win clients.<br><em>Scale</em> your<br><span class="stroke">BPO.</span></h1>
+  <p>Automate proposals, manage your pipeline, track developers, and grow your outsourcing business — all from one command center.</p>
+  <div class="hero-btns">
+    <a href="app.html" class="btn-primary">Start free →</a>
+    <a href="#how" class="btn-secondary">See how it works ↓</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item"><div class="stat-num">3<span>×</span></div><div class="stat-label">More proposals sent</div></div>
+    <div class="stat-item"><div class="stat-num">18<span>%</span></div><div class="stat-label">Average response rate</div></div>
+    <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">To get started</div></div>
+  </div>
+</div>
+
+<div class="marquee-wrap">
+  <div class="marquee">
+    <span>Proposal automation</span><span class="accent">✦</span>
+    <span>Pipeline management</span><span class="accent">✦</span>
+    <span>Dev team tracking</span><span class="accent">✦</span>
+    <span>AI-powered writing</span><span class="accent">✦</span>
+    <span>Client acquisition</span><span class="accent">✦</span>
+    <span>Revenue scaling</span><span class="accent">✦</span>
+    <span>Proposal automation</span><span class="accent">✦</span>
+    <span>Pipeline management</span><span class="accent">✦</span>
+    <span>Dev team tracking</span><span class="accent">✦</span>
+    <span>AI-powered writing</span><span class="accent">✦</span>
+    <span>Client acquisition</span><span class="accent">✦</span>
+    <span>Revenue scaling</span><span class="accent">✦</span>
+  </div>
+</div>
+
+<section id="features">
+  <div class="section-tag">Features</div>
+  <div class="section-title">Everything you need<br>to run a BPO business.</div>
+  <p class="section-sub">Stop juggling spreadsheets and disconnected tools. BPO Hub brings your entire operation into one place.</p>
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-num">01</div>
+      <div class="feature-icon">⚡</div>
+      <h3>AI proposal generator</h3>
+      <p>Paste a job description, get a winning proposal in seconds. Trained to convert across Upwork, Freelancer, and more.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">02</div>
+      <div class="feature-icon">📊</div>
+      <h3>Pipeline tracking</h3>
+      <p>See every deal at every stage. From first proposal to final payment — nothing slips through the cracks.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">03</div>
+      <div class="feature-icon">👥</div>
+      <h3>Dev team management</h3>
+      <p>Track developer ratings, on-time delivery, and revision counts. Always know who your best performers are.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">04</div>
+      <div class="feature-icon">📈</div>
+      <h3>Performance analytics</h3>
+      <p>Weekly proposal stats, response rates, revenue by niche — the data you need to optimize and scale faster.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">05</div>
+      <div class="feature-icon">🤖</div>
+      <h3>Follow-up automation</h3>
+      <p>Never let a warm lead go cold. Get AI-generated follow-up messages and negotiation scripts on demand.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">06</div>
+      <div class="feature-icon">💰</div>
+      <h3>Margin calculator</h3>
+      <p>Know exactly what you keep on every deal. Set developer rates, client prices, and track your profit automatically.</p>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="section-tag">How it works</div>
+  <div class="section-title">From zero to<br>your first client.</div>
+  <div class="how-wrap">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h4>Find a job on Upwork or Freelancer</h4>
+          <p>Browse listings in web dev, app development, or any other niche you target.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h4>Paste the job into BPO Hub</h4>
+          <p>Copy the job description and drop it into the AI generator. Select your platform and tone.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h4>Send the AI-generated proposal</h4>
+          <p>Review, copy, and submit your tailored proposal in under 60 seconds.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h4>Win the job, outsource the work</h4>
+          <p>Client pays you. You assign it to a developer at a lower rate. You keep the difference.</p>
+        </div>
+      </div>
+    </div>
+    <div class="step-visual">
+      <div class="mock-proposal">
+        <div class="mock-line accent"></div>
+        <div style="height:16px;"></div>
+        <div class="mock-line"></div>
+        <div class="mock-line med"></div>
+        <div class="mock-line short"></div>
+        <div style="height:12px;"></div>
+        <div class="mock-line"></div>
+        <div class="mock-line med"></div>
+        <div style="height:12px;"></div>
+        <div class="mock-line short"></div>
+        <div class="mock-line"></div>
+        <div class="mock-line med"></div>
+        <div style="height:16px;"></div>
+        <div style="height:36px;background:var(--ink);border-radius:100px;width:140px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="section-tag">Pricing</div>
+  <div class="section-title">Start free.<br>Scale when ready.</div>
+  <p class="section-sub">No hidden fees. Cancel anytime. Built for BPO operators at every stage.</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">Starter</div>
+      <div class="price">$0</div>
+      <div class="price-period">Free forever</div>
+      <div class="price-desc">Perfect for getting your first clients and testing the platform.</div>
+      <ul class="plan-features">
+        <li class="plan-feature">20 AI proposals/month</li>
+        <li class="plan-feature">Pipeline tracking</li>
+        <li class="plan-feature">3 developer profiles</li>
+        <li class="plan-feature">Basic analytics</li>
+      </ul>
+      <a href="app.html" class="plan-btn plan-btn-outline">Get started free</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="featured-badge">Most popular</div>
+      <div class="plan-name">Growth</div>
+      <div class="price">$29</div>
+      <div class="price-period">/month</div>
+      <div class="price-desc">For operators actively scaling their BPO to $5k–$20k/month.</div>
+      <ul class="plan-features">
+        <li class="plan-feature">Unlimited AI proposals</li>
+        <li class="plan-feature">Full pipeline CRM</li>
+        <li class="plan-feature">Unlimited developers</li>
+        <li class="plan-feature">Advanced analytics</li>
+        <li class="plan-feature">Follow-up automation</li>
+        <li class="plan-feature">Negotiation scripts</li>
+      </ul>
+      <a href="app.html" class="plan-btn plan-btn-light">Start 7-day free trial</a>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Scale</div>
+      <div class="price">$79</div>
+      <div class="price-period">/month</div>
+      <div class="price-desc">For established BPO operators building a multi-million dollar operation.</div>
+      <ul class="plan-features">
+        <li class="plan-feature">Everything in Growth</li>
+        <li class="plan-feature">Multi-user team access</li>
+        <li class="plan-feature">Custom proposal templates</li>
+        <li class="plan-feature">Priority support</li>
+        <li class="plan-feature">Monthly strategy call</li>
+      </ul>
+      <a href="app.html" class="plan-btn plan-btn-dark">Get started</a>
+    </div>
+  </div>
+</section>
+
+<section id="testimonials">
+  <div class="section-tag">Testimonials</div>
+  <div class="section-title">Operators love it.</div>
+  <div class="testimonials-grid">
+    <div class="testimonial">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Went from sending 5 proposals a week manually to 50+ with BPO Hub. Landed my first $1,200 client in week two."</p>
+      <div class="t-author">
+        <div class="t-avatar" style="background:#faeeda;color:#633806;">KM</div>
+        <div><div class="t-name">Kagiso M.</div><div class="t-handle">Johannesburg, SA</div></div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"The AI proposals sound so human — clients actually respond. My response rate went from 8% to 22% in one month."</p>
+      <div class="t-author">
+        <div class="t-avatar" style="background:#e1f5ee;color:#085041;">TN</div>
+        <div><div class="t-name">Thandeka N.</div><div class="t-handle">Cape Town, SA</div></div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Managing 4 developers across 7 active projects used to be chaos. Now I have everything in one place. Game changer."</p>
+      <div class="t-author">
+        <div class="t-avatar" style="background:#eeedfe;color:#3c3489;">LB</div>
+        <div><div class="t-name">Lebo B.</div><div class="t-handle">Pretoria, SA</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <div class="section-tag" style="color:var(--accent)">Get started today</div>
+  <div class="section-title">Your BPO business<br>starts here.</div>
+  <p>Join operators already using BPO Hub to win clients, scale their team, and build a multimillion dollar business.</p>
+  <a href="app.html" class="cta-btn">Launch BPO Hub — it's free →</a>
+</div>
+
+<footer>
+  <div class="footer-logo">BPO<span>Hub</span></div>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="app.html">App</a>
+    <a href="admin.html">Admin</a>
+  </div>
+  <div class="footer-copy">© 2026 BPO Hub. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
