@@ -6,6 +6,7 @@
 <title>BPO Hub — App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --ink: #0a0a0a; --paper: #f5f2eb; --accent: #d4521a; --accent2: #1a6dd4;
@@ -15,10 +16,22 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); }
 
+  /* LOADING */
+  #loading-screen {
+    position: fixed; inset: 0; background: var(--paper);
+    display: flex; align-items: center; justify-content: center; z-index: 300;
+  }
+  .loading-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; }
+  .loading-logo span { color: var(--accent); }
+  .loading-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 2px; animation: bounce 1.2s ease-in-out infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:0.4} 40%{transform:translateY(-6px);opacity:1} }
+
   /* AUTH */
   #auth-screen {
     position: fixed; inset: 0; background: var(--paper);
-    display: flex; align-items: center; justify-content: center; z-index: 200;
+    display: none; align-items: center; justify-content: center; z-index: 200;
   }
   .auth-box {
     background: var(--card); border: 1px solid var(--border); border-radius: 20px;
@@ -44,17 +57,30 @@
     font-family: 'DM Sans', sans-serif; font-weight: 500; transition: background 0.2s; margin-top: 4px;
   }
   .auth-btn:hover { background: var(--accent); }
-  .auth-msg { font-size: 0.8rem; color: var(--muted); text-align: center; margin-top: 8px; }
-  .auth-divider { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0; position: relative; }
-  .auth-divider::before { content:''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
-  .auth-divider span { background: var(--card); padding: 0 10px; position: relative; }
+  .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .auth-error { font-size: 0.82rem; color: #c0392b; background: #fcebeb; border-radius: 8px; padding: 8px 12px; display: none; }
+  .auth-success { font-size: 0.82rem; color: #27500a; background: #eaf3de; border-radius: 8px; padding: 8px 12px; display: none; }
+  .auth-msg { font-size: 0.8rem; color: var(--muted); text-align: center; margin-top: 4px; }
+  .auth-link { color: var(--accent); cursor: pointer; text-decoration: underline; }
+  .auth-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+  .auth-divider::before, .auth-divider::after { content:''; flex:1; height: 1px; background: var(--border); }
+  .auth-divider span { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
   .google-btn {
     display: flex; align-items: center; justify-content: center; gap: 10px;
     padding: 10px; border: 1px solid var(--border); border-radius: 100px;
     cursor: pointer; background: var(--card); font-size: 0.9rem;
-    font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+    font-family: 'DM Sans', sans-serif; transition: background 0.2s; width: 100%;
   }
   .google-btn:hover { background: var(--paper); }
+  .reset-link { font-size: 0.8rem; color: var(--accent); cursor: pointer; text-align: right; text-decoration: underline; margin-top: -4px; }
+
+  /* SETUP BANNER */
+  .setup-banner {
+    background: #faeeda; border: 1px solid #ef9f27; border-radius: 10px;
+    padding: 10px 14px; font-size: 0.82rem; color: #633806; margin-bottom: 1rem;
+    display: none;
+  }
+  .setup-banner a { color: var(--accent); font-weight: 600; }
 
   /* APP LAYOUT */
   #app-screen { display: none; height: 100vh; overflow: hidden; }
@@ -188,26 +214,73 @@
 </head>
 <body>
 
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div style="text-align:center;">
+    <div class="loading-logo">BPO<span>Hub</span></div>
+    <div style="margin-top:16px;">
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+    </div>
+  </div>
+</div>
+
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">BPO<span>Hub</span></div>
     <div class="auth-sub">Your AI-powered BPO command center</div>
+
+    <!-- SETUP WARNING — shown when Supabase not configured -->
+    <div class="setup-banner" id="setup-banner">
+      ⚙️ Supabase not configured yet. Add your <strong>SUPABASE_URL</strong> and <strong>SUPABASE_ANON_KEY</strong> at the top of this file. <a href="https://supabase.com" target="_blank">Create a free project →</a>
+    </div>
+
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchTab('login')">Sign in</button>
       <button class="auth-tab" onclick="switchTab('signup')">Create account</button>
+      <button class="auth-tab" onclick="switchTab('reset')" id="reset-tab" style="display:none;">Reset password</button>
     </div>
+
+    <!-- SIGN IN -->
     <div id="login-form" class="auth-form">
-      <input type="email" id="login-email" placeholder="Email address" value="demo@bpohub.com" />
-      <input type="password" id="login-pass" placeholder="Password" value="password" />
-      <button class="auth-btn" onclick="login()">Sign in →</button>
-      <div class="auth-msg">Demo: use any email & password</div>
+      <div id="login-error" class="auth-error"></div>
+      <div id="login-success" class="auth-success"></div>
+      <input type="email" id="login-email" placeholder="Email address" autocomplete="email" />
+      <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password" />
+      <div class="reset-link" onclick="switchTab('reset')">Forgot password?</div>
+      <button class="auth-btn" id="login-btn" onclick="handleLogin()">Sign in →</button>
+      <div class="auth-divider"><span>or continue with</span></div>
+      <button class="google-btn" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.3z"/></svg>
+        Continue with Google
+      </button>
     </div>
+
+    <!-- SIGN UP -->
     <div id="signup-form" class="auth-form" style="display:none;">
-      <input type="text" placeholder="Full name" />
-      <input type="email" placeholder="Email address" />
-      <input type="password" placeholder="Create password" />
-      <button class="auth-btn" onclick="login()">Create account →</button>
+      <div id="signup-error" class="auth-error"></div>
+      <div id="signup-success" class="auth-success"></div>
+      <input type="text" id="signup-name" placeholder="Full name" autocomplete="name" />
+      <input type="email" id="signup-email" placeholder="Email address" autocomplete="email" />
+      <input type="password" id="signup-pass" placeholder="Create password (min 6 chars)" autocomplete="new-password" />
+      <button class="auth-btn" id="signup-btn" onclick="handleSignup()">Create account →</button>
+      <div class="auth-divider"><span>or continue with</span></div>
+      <button class="google-btn" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.3z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <!-- RESET PASSWORD -->
+    <div id="reset-form" class="auth-form" style="display:none;">
+      <div id="reset-error" class="auth-error"></div>
+      <div id="reset-success" class="auth-success"></div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:4px;">Enter your email and we'll send you a reset link.</p>
+      <input type="email" id="reset-email" placeholder="Email address" />
+      <button class="auth-btn" id="reset-btn" onclick="handleReset()">Send reset link →</button>
+      <div class="auth-msg"><span class="auth-link" onclick="switchTab('login')">← Back to sign in</span></div>
     </div>
   </div>
 </div>
@@ -216,7 +289,7 @@
 <div id="app-screen">
   <div class="app-wrap">
     <div class="sidebar">
-      <div class="sidebar-logo">BPO<span>Hub</span><small id="user-email-display">demo@bpohub.com</small></div>
+      <div class="sidebar-logo">BPO<span>Hub</span><small id="user-email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="eb8f8e8684ab899b84839e89c5888486">[email&#160;protected]</a></small></div>
       <div style="padding: 0.5rem 0;">
         <div class="sidebar-section">Main</div>
         <div class="nav-item active" onclick="showPage('dashboard',this)">
@@ -495,7 +568,7 @@
             <table>
               <thead><tr><th>Email</th><th>Plan</th><th>Joined</th><th>Proposals generated</th><th>Status</th></tr></thead>
               <tbody>
-                <tr><td id="admin-user-email">demo@bpohub.com</td><td>Free</td><td>Today</td><td id="admin-user-gen">0</td><td><span class="badge badge-active">Active</span></td></tr>
+                <tr><td id="admin-user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8aeeefe7e5cae8fae5e2ffe8a4e9e5e7">[email&#160;protected]</a></td><td>Free</td><td>Today</td><td id="admin-user-gen">0</td><td><span class="badge badge-active">Active</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -515,10 +588,23 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+// ============================================================
+// SUPABASE CONFIGURATION
+// Replace these two values with your own from supabase.com
+// Project Settings → API → Project URL & anon/public key
+// ============================================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// ============================================================
+
+const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+const supabase = isConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
 let genCount = 0;
 let currentUser = null;
+let chartsInitialized = false;
 
 const proposalsData = [
   { job: 'React dashboard for SaaS', platform: 'Upwork', niche: 'Web dev', budget: '$850', margin: '40%', status: 'replied' },
@@ -529,6 +615,161 @@ const proposalsData = [
   { job: 'Landing page + copywriting', platform: 'Upwork', niche: 'Web dev', budget: '$320', margin: '50%', status: 'pending' },
   { job: 'iOS app — fitness tracker', platform: 'Upwork', niche: 'App dev', budget: '$3,800', margin: '30%', status: 'replied' },
 ];
+
+// ── AUTH INIT ──────────────────────────────────────────────
+async function initAuth() {
+  // Show setup banner if not configured
+  if (!isConfigured) {
+    document.getElementById('setup-banner').style.display = 'block';
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    return;
+  }
+
+  // Check for existing session
+  const { data: { session } } = await supabase.auth.getSession();
+  document.getElementById('loading-screen').style.display = 'none';
+
+  if (session?.user) {
+    enterApp(session.user);
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+
+  // Listen for auth state changes (login, logout, token refresh)
+  supabase.auth.onAuthStateChange((_event, session) => {
+    if (session?.user) {
+      enterApp(session.user);
+    } else {
+      exitApp();
+    }
+  });
+}
+
+// ── ENTER / EXIT APP ──────────────────────────────────────
+function enterApp(user) {
+  currentUser = user;
+  const displayName = user.user_metadata?.full_name || user.email.split('@')[0];
+  const initial = displayName[0].toUpperCase();
+
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('user-email-display').textContent = user.email;
+  document.getElementById('user-name-display').textContent = displayName;
+  document.getElementById('user-av').textContent = initial;
+  document.getElementById('admin-user-email').textContent = user.email;
+
+  renderProposals();
+  if (!chartsInitialized) { initCharts(); chartsInitialized = true; }
+}
+
+function exitApp() {
+  currentUser = null;
+  chartsInitialized = false;
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// ── AUTH HANDLERS ─────────────────────────────────────────
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+function showSuccess(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+function clearMessages(prefix) {
+  ['error','success'].forEach(t => {
+    const el = document.getElementById(prefix+'-'+t);
+    if (el) { el.textContent = ''; el.style.display = 'none'; }
+  });
+}
+function setLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.textContent = loading ? 'Please wait...' : label;
+}
+
+async function handleLogin() {
+  if (!isConfigured) { showError('login-error', 'Please configure Supabase first.'); return; }
+  clearMessages('login');
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-pass').value;
+  if (!email || !password) { showError('login-error', 'Please fill in all fields.'); return; }
+
+  setLoading('login-btn', true, 'Sign in →');
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  setLoading('login-btn', false, 'Sign in →');
+
+  if (error) { showError('login-error', error.message); }
+}
+
+async function handleSignup() {
+  if (!isConfigured) { showError('signup-error', 'Please configure Supabase first.'); return; }
+  clearMessages('signup');
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-pass').value;
+  if (!name || !email || !password) { showError('signup-error', 'Please fill in all fields.'); return; }
+  if (password.length < 6) { showError('signup-error', 'Password must be at least 6 characters.'); return; }
+
+  setLoading('signup-btn', true, 'Create account →');
+  const { error } = await supabase.auth.signUp({
+    email, password,
+    options: { data: { full_name: name } }
+  });
+  setLoading('signup-btn', false, 'Create account →');
+
+  if (error) { showError('signup-error', error.message); }
+  else { showSuccess('signup-success', 'Account created! Check your email to confirm your account, then sign in.'); }
+}
+
+async function handleGoogleLogin() {
+  if (!isConfigured) { alert('Please configure Supabase first.'); return; }
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+}
+
+async function handleReset() {
+  if (!isConfigured) { showError('reset-error', 'Please configure Supabase first.'); return; }
+  clearMessages('reset');
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) { showError('reset-error', 'Please enter your email address.'); return; }
+
+  setLoading('reset-btn', true, 'Send reset link →');
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href
+  });
+  setLoading('reset-btn', false, 'Send reset link →');
+
+  if (error) { showError('reset-error', error.message); }
+  else { showSuccess('reset-success', 'Reset link sent! Check your email inbox.'); }
+}
+
+async function logout() {
+  if (supabase) { await supabase.auth.signOut(); }
+  exitApp();
+}
+
+// ── UI HELPERS ────────────────────────────────────────────
+function switchTab(tab) {
+  const tabs = ['login','signup','reset'];
+  const resetTab = document.getElementById('reset-tab');
+  resetTab.style.display = tab === 'reset' ? 'block' : 'none';
+
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  const tabIndex = tabs.indexOf(tab);
+  document.querySelectorAll('.auth-tab')[tabIndex]?.classList.add('active');
+
+  tabs.forEach(t => {
+    const el = document.getElementById(t+'-form');
+    if (el) el.style.display = t === tab ? 'flex' : 'none';
+  });
+  ['login','signup','reset'].forEach(t => clearMessages(t));
+}
 
 function renderProposals(filter = 'all') {
   const body = document.getElementById('proposals-body');
@@ -542,30 +783,6 @@ function renderProposals(filter = 'all') {
 }
 
 function filterProposals(val) { renderProposals(val); }
-
-function switchTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
-  document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
-  document.getElementById('signup-form').style.display = tab === 'signup' ? 'flex' : 'none';
-}
-
-function login() {
-  const email = document.getElementById('login-email').value || 'demo@bpohub.com';
-  currentUser = { email, name: email.split('@')[0] };
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'block';
-  document.getElementById('user-email-display').textContent = email;
-  document.getElementById('user-name-display').textContent = currentUser.name;
-  document.getElementById('user-av').textContent = currentUser.name[0].toUpperCase();
-  document.getElementById('admin-user-email').textContent = email;
-  renderProposals();
-  initCharts();
-}
-
-function logout() {
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('app-screen').style.display = 'none';
-}
 
 const pageMeta = {
   dashboard: ['Dashboard', 'Your BPO operations at a glance'],
@@ -653,6 +870,95 @@ function clearGen() {
   document.getElementById('margin-display').style.display = 'none';
 }
 
+// ── PAGE NAV ──────────────────────────────────────────────
+const pageMeta = {
+  dashboard: ['Dashboard', 'Your BPO operations at a glance'],
+  generator: ['AI Proposal Generator', 'Generate winning proposals instantly'],
+  proposals: ['Proposals', 'Track every proposal you send'],
+  pipeline: ['Pipeline', 'Manage deals from proposal to payment'],
+  team: ['Dev Team', 'Your outsourced developer network'],
+  admin: ['Admin Panel', 'Platform management & settings'],
+};
+
+function showPage(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = pageMeta[id][0];
+  document.getElementById('page-sub').textContent = pageMeta[id][1];
+}
+
+// ── PROPOSAL GENERATOR ────────────────────────────────────
+async function generateProposal() {
+  const desc = document.getElementById('g-desc').value.trim();
+  if (!desc) { alert('Please paste a job description first.'); return; }
+  const platform = document.getElementById('g-platform').value;
+  const niche = document.getElementById('g-niche').value;
+  const budget = document.getElementById('g-budget').value;
+  const tone = document.getElementById('g-tone').value;
+  const devRate = document.getElementById('g-rate').value;
+
+  const out = document.getElementById('g-output');
+  out.innerHTML = '<span class="loading">Generating your proposal</span>';
+  document.getElementById('copy-btn').style.display = 'none';
+  document.getElementById('regen-btn').style.display = 'none';
+  document.getElementById('quick-actions').style.display = 'none';
+  document.getElementById('margin-display').style.display = 'none';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: `You are an expert BPO proposal writer. Write a personalized, high-converting proposal for this job.\n\nPlatform: ${platform}\nNiche: ${niche}\nBudget: ${budget||'unspecified'}\nTone: ${tone}\n\nJob description:\n${desc}\n\nRules:\n- Open with a hook showing you read the job\n- Be specific to their needs\n- Keep it 150-250 words\n- End with a clear CTA\n- No generic openers like "I am writing to express my interest"\n- Sound human, not robotic\n\nReturn ONLY the proposal text.` }] })
+    });
+    const data = await res.json();
+    const text = data.content.map(b => b.text||'').join('');
+    out.textContent = text;
+    document.getElementById('copy-btn').style.display = 'inline-flex';
+    document.getElementById('regen-btn').style.display = 'inline-flex';
+    document.getElementById('quick-actions').style.display = 'flex';
+
+    if (budget && devRate) {
+      const clientAmt = parseFloat(budget.replace(/[^0-9.]/g,''));
+      const devAmt = parseFloat(devRate.replace(/[^0-9.]/g,''));
+      if (clientAmt && devAmt && clientAmt > devAmt) {
+        const margin = Math.round(((clientAmt - devAmt) / clientAmt) * 100);
+        document.getElementById('margin-val').textContent = `$${Math.round(clientAmt - devAmt)} (${margin}% margin)`;
+        document.getElementById('margin-display').style.display = 'block';
+      }
+    }
+
+    genCount++;
+    document.getElementById('admin-gen-count').textContent = genCount;
+    document.getElementById('admin-user-gen').textContent = genCount;
+  } catch(e) {
+    out.textContent = 'Something went wrong. Please try again.';
+  }
+}
+
+function copyProposal() {
+  navigator.clipboard.writeText(document.getElementById('g-output').textContent).catch(()=>{});
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+function clearGen() {
+  document.getElementById('g-desc').value = '';
+  document.getElementById('g-budget').value = '';
+  document.getElementById('g-rate').value = '';
+  document.getElementById('g-output').textContent = 'Your proposal will appear here after generation...';
+  document.getElementById('copy-btn').style.display = 'none';
+  document.getElementById('regen-btn').style.display = 'none';
+  document.getElementById('quick-actions').style.display = 'none';
+  document.getElementById('margin-display').style.display = 'none';
+}
+
+// ── CHARTS ────────────────────────────────────────────────
 function initCharts() {
   new Chart(document.getElementById('dash-chart1'), {
     type: 'bar',
@@ -673,6 +979,9 @@ function initCharts() {
     options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(0,0,0,0.05)'}}} }
   });
 }
+
+// ── KICK OFF ─────────────────────────────────────────────
+initAuth();
 </script>
 </body>
 </html>
