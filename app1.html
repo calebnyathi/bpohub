@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BPO Hub — App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a; --paper: #f5f2eb; --accent: #d4521a; --accent2: #1a6dd4;
+    --muted: #6b6760; --border: rgba(10,10,10,0.1); --card: #fff;
+    --sidebar-w: 220px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); }
+
+  /* AUTH */
+  #auth-screen {
+    position: fixed; inset: 0; background: var(--paper);
+    display: flex; align-items: center; justify-content: center; z-index: 200;
+  }
+  .auth-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 2.5rem; width: 100%; max-width: 420px;
+  }
+  .auth-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .auth-logo span { color: var(--accent); }
+  .auth-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; }
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .auth-tab { padding: 0.5rem 1.25rem; font-size: 0.9rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; background: none; border-top: none; border-left: none; border-right: none; }
+  .auth-tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 500; }
+  .auth-form { display: flex; flex-direction: column; gap: 12px; }
+  .auth-form input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+    border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
+    background: var(--paper); color: var(--ink); outline: none;
+    transition: border-color 0.2s;
+  }
+  .auth-form input:focus { border-color: var(--accent); }
+  .auth-btn {
+    background: var(--ink); color: var(--paper); padding: 11px;
+    border-radius: 100px; border: none; cursor: pointer; font-size: 0.95rem;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; transition: background 0.2s; margin-top: 4px;
+  }
+  .auth-btn:hover { background: var(--accent); }
+  .auth-msg { font-size: 0.8rem; color: var(--muted); text-align: center; margin-top: 8px; }
+  .auth-divider { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0; position: relative; }
+  .auth-divider::before { content:''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
+  .auth-divider span { background: var(--card); padding: 0 10px; position: relative; }
+  .google-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 10px; border: 1px solid var(--border); border-radius: 100px;
+    cursor: pointer; background: var(--card); font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+  }
+  .google-btn:hover { background: var(--paper); }
+
+  /* APP LAYOUT */
+  #app-screen { display: none; height: 100vh; overflow: hidden; }
+  .app-wrap { display: flex; height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--card); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+  }
+  .sidebar-logo { padding: 1.25rem 1.25rem 1rem; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; border-bottom: 1px solid var(--border); }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-logo small { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .sidebar-section { padding: 1rem 0.75rem 0.25rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    margin: 1px 8px; border-radius: 8px; cursor: pointer;
+    font-size: 0.875rem; color: var(--muted); transition: all 0.15s;
+  }
+  .nav-item:hover { background: var(--paper); color: var(--ink); }
+  .nav-item.active { background: var(--ink); color: var(--paper); }
+  .nav-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
+  .nav-badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 0.65rem; padding: 1px 6px; border-radius: 100px; font-weight: 600; }
+  .sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid var(--border); }
+  .user-pill { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; cursor: pointer; transition: background 0.15s; }
+  .user-pill:hover { background: var(--paper); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--paper); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; }
+  .user-name { font-size: 0.85rem; font-weight: 500; }
+  .user-plan { font-size: 0.7rem; color: var(--muted); }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .topbar-left h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+  .topbar-left p { font-size: 0.8rem; color: var(--muted); }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .btn { padding: 7px 14px; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 100px; cursor: pointer; background: transparent; color: var(--ink); font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--paper); }
+  .btn-accent { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn-accent:hover { background: var(--accent); border-color: var(--accent); }
+  .content { flex: 1; overflow-y: auto; padding: 1.5rem; background: var(--paper); }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS & METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
+  .metric-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+  .metric-value { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 700; }
+  .metric-change { font-size: 0.75rem; margin-top: 4px; }
+  .up { color: #2d7a2d; } .down { color: #c0392b; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { text-align: left; padding: 8px 12px; font-size: 0.7rem; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.06em; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--paper); }
+
+  /* BADGES */
+  .badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 100px; font-weight: 600; }
+  .badge-sent { background: #e6f1fb; color: #185fa5; }
+  .badge-replied { background: #eaf3de; color: #27500a; }
+  .badge-closed { background: #eeedfe; color: #3c3489; }
+  .badge-lost { background: #fcebeb; color: #791f1f; }
+  .badge-pending { background: #f1efe8; color: #5f5e5a; }
+  .badge-active { background: #eaf3de; color: #27500a; }
+
+  /* PIPELINE */
+  .pipeline-cols { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .pipeline-col { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+  .pipeline-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .pipeline-col-title { font-size: 0.8rem; font-weight: 600; }
+  .pipeline-col-count { font-size: 0.7rem; background: var(--paper); padding: 2px 8px; border-radius: 100px; color: var(--muted); }
+  .pipeline-deal { background: var(--paper); border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer; transition: transform 0.1s; }
+  .pipeline-deal:hover { transform: translateY(-1px); }
+  .deal-title { font-size: 0.8rem; font-weight: 500; margin-bottom: 4px; }
+  .deal-value { font-size: 0.75rem; color: var(--accent); font-weight: 600; }
+  .deal-client { font-size: 0.7rem; color: var(--muted); }
+
+  /* DEV CARDS */
+  .dev-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; }
+  .dev-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+  .dev-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .dev-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; flex-shrink: 0; }
+  .dev-name { font-weight: 600; font-size: 0.95rem; }
+  .dev-skill { font-size: 0.78rem; color: var(--muted); }
+  .dev-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+  .dev-stat { background: var(--paper); border-radius: 8px; padding: 8px; text-align: center; }
+  .dev-stat-val { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+  .dev-stat-label { font-size: 0.65rem; color: var(--muted); }
+  .rating-stars { color: var(--accent); font-size: 0.8rem; }
+
+  /* PROPOSAL GEN */
+  .gen-form { display: flex; flex-direction: column; gap: 12px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+    border-radius: 10px; font-size: 0.875rem; font-family: 'DM Sans', sans-serif;
+    background: var(--paper); color: var(--ink); outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: none; line-height: 1.6; }
+  .output-area { background: var(--paper); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; font-size: 0.875rem; line-height: 1.8; min-height: 140px; white-space: pre-wrap; color: var(--ink); }
+  .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* ADMIN */
+  .admin-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .admin-metric { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+  .admin-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .admin-value { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; }
+
+  /* MISC */
+  .tip { background: #e6f1fb; border-left: 3px solid var(--accent2); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 0.82rem; color: #185fa5; line-height: 1.6; margin-bottom: 1rem; }
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.9rem; }
+  .loading::after { content: '...'; animation: dots 1s steps(3) infinite; }
+  @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(10,10,10,0.5); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-box { background: var(--card); border-radius: 16px; padding: 2rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; }
+  .modal-close { float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">BPO<span>Hub</span></div>
+    <div class="auth-sub">Your AI-powered BPO command center</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Sign in</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Create account</button>
+    </div>
+    <div id="login-form" class="auth-form">
+      <input type="email" id="login-email" placeholder="Email address" value="demo@bpohub.com" />
+      <input type="password" id="login-pass" placeholder="Password" value="password" />
+      <button class="auth-btn" onclick="login()">Sign in →</button>
+      <div class="auth-msg">Demo: use any email & password</div>
+    </div>
+    <div id="signup-form" class="auth-form" style="display:none;">
+      <input type="text" placeholder="Full name" />
+      <input type="email" placeholder="Email address" />
+      <input type="password" placeholder="Create password" />
+      <button class="auth-btn" onclick="login()">Create account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="app-wrap">
+    <div class="sidebar">
+      <div class="sidebar-logo">BPO<span>Hub</span><small id="user-email-display">demo@bpohub.com</small></div>
+      <div style="padding: 0.5rem 0;">
+        <div class="sidebar-section">Main</div>
+        <div class="nav-item active" onclick="showPage('dashboard',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="7" height="7" rx="1.5"/><rect x="10" y="1" width="7" height="7" rx="1.5"/><rect x="1" y="10" width="7" height="7" rx="1.5"/><rect x="10" y="10" width="7" height="7" rx="1.5"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('generator',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 6v3l2 2"/></svg>
+          AI Generator
+          <span class="nav-badge">AI</span>
+        </div>
+        <div class="sidebar-section">Track</div>
+        <div class="nav-item" onclick="showPage('proposals',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h12M3 9h8M3 14h10"/></svg>
+          Proposals
+        </div>
+        <div class="nav-item" onclick="showPage('pipeline',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 16V7l5-5h9v14H2z"/><path d="M7 2v5H2"/></svg>
+          Pipeline
+        </div>
+        <div class="sidebar-section">Team</div>
+        <div class="nav-item" onclick="showPage('team',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="6" r="3.5"/><path d="M1 16c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="14" cy="6" r="2.5"/><path d="M17 16c0-2.5-1.5-4-3-4.5"/></svg>
+          Dev Team
+        </div>
+        <div class="nav-item" onclick="showPage('admin',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><circle cx="9" cy="9" r="2.5"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2"/></svg>
+          Admin panel
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-pill" onclick="logout()">
+          <div class="user-avatar" id="user-av">D</div>
+          <div>
+            <div class="user-name" id="user-name-display">Demo User</div>
+            <div class="user-plan">Free plan · Sign out</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2 id="page-title">Dashboard</h2>
+          <p id="page-sub">Your BPO operations at a glance</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="showPage('proposals', document.querySelectorAll('.nav-item')[2])">View proposals</button>
+          <button class="btn btn-accent" onclick="showPage('generator', document.querySelectorAll('.nav-item')[1])">+ Generate proposal</button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="section active" id="page-dashboard">
+          <div class="metrics">
+            <div class="metric-card">
+              <div class="metric-label">Total proposals sent</div>
+              <div class="metric-value">247</div>
+              <div class="metric-change up">↑ 38 this week</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Response rate</div>
+              <div class="metric-value">18%</div>
+              <div class="metric-change up">↑ 3% vs last month</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Active pipeline</div>
+              <div class="metric-value">$8,400</div>
+              <div class="metric-change">12 open deals</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Revenue this month</div>
+              <div class="metric-value">$2,150</div>
+              <div class="metric-change up">↑ $900 vs last month</div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Weekly proposals</div></div>
+              <div style="position:relative;height:180px;"><canvas id="dash-chart1"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Revenue by niche</div></div>
+              <div style="position:relative;height:180px;"><canvas id="dash-chart2"></canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent proposals</div><button class="btn" onclick="showPage('proposals', document.querySelectorAll('.nav-item')[2])">View all</button></div>
+            <table>
+              <thead><tr><th>Job</th><th>Platform</th><th>Sent</th><th>Status</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>React dashboard for SaaS</td><td>Upwork</td><td>2h ago</td><td><span class="badge badge-replied">Replied</span></td><td>$850</td></tr>
+                <tr><td>Mobile app MVP (Flutter)</td><td>Upwork</td><td>4h ago</td><td><span class="badge badge-sent">Sent</span></td><td>$2,400</td></tr>
+                <tr><td>WordPress site redesign</td><td>Freelancer</td><td>5h ago</td><td><span class="badge badge-sent">Sent</span></td><td>$450</td></tr>
+                <tr><td>REST API integration</td><td>Upwork</td><td>1d ago</td><td><span class="badge badge-closed">Closed ✓</span></td><td>$1,200</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- AI GENERATOR -->
+        <div class="section" id="page-generator">
+          <div class="tip">Paste a job description and get a high-converting, personalized proposal in seconds. The better your job description, the better the output.</div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Job details</div></div>
+              <div class="gen-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Platform</label>
+                    <select id="g-platform"><option>Upwork</option><option>Freelancer</option><option>Fiverr</option><option>LinkedIn</option></select>
+                  </div>
+                  <div class="form-group">
+                    <label>Niche</label>
+                    <select id="g-niche"><option>Web development</option><option>App development</option><option>UI/UX design</option><option>E-commerce</option><option>Other</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Client budget (USD)</label>
+                    <input type="text" id="g-budget" placeholder="e.g. $500–$1,000" />
+                  </div>
+                  <div class="form-group">
+                    <label>Tone</label>
+                    <select id="g-tone"><option>Professional & confident</option><option>Friendly & conversational</option><option>Direct & concise</option><option>Enthusiastic</option></select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Your proposed rate (for margin calc)</label>
+                  <input type="text" id="g-rate" placeholder="e.g. $400 (what you'll pay developer)" />
+                </div>
+                <div class="form-group">
+                  <label>Job description</label>
+                  <textarea id="g-desc" rows="7" placeholder="Paste the full job description from the platform here..."></textarea>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-accent" onclick="generateProposal()" style="flex:1;">Generate proposal →</button>
+                  <button class="btn" onclick="clearGen()">Clear</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Generated proposal</div>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn" onclick="copyProposal()" id="copy-btn" style="display:none;">Copy</button>
+                  <button class="btn" onclick="generateProposal()" id="regen-btn" style="display:none;">Regenerate</button>
+                </div>
+              </div>
+              <div class="output-area" id="g-output">Your proposal will appear here after generation...</div>
+              <div id="margin-display" style="display:none;margin-top:12px;padding:10px 14px;background:var(--paper);border-radius:8px;font-size:0.82rem;">
+                <span style="color:var(--muted);">Estimated margin:</span> <strong id="margin-val" style="color:var(--accent);"></strong>
+              </div>
+              <div class="quick-actions" id="quick-actions" style="display:none;">
+                <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('Give me 3 follow-up message variations for a client who has not replied to my BPO proposal on Upwork')">Follow-up messages ↗</button>
+                <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('What negotiation tactics should I use when a client says my BPO proposal price is too high?')">Negotiation tips ↗</button>
+                <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('Help me improve this BPO proposal to increase the response rate. Make it more specific and compelling.')">Improve proposal ↗</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROPOSALS -->
+        <div class="section" id="page-proposals">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">All proposals</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select style="font-size:0.8rem;padding:5px 10px;border:1px solid var(--border);border-radius:100px;background:var(--paper);color:var(--ink);" onchange="filterProposals(this.value)">
+                  <option value="all">All statuses</option>
+                  <option value="sent">Sent</option>
+                  <option value="replied">Replied</option>
+                  <option value="closed">Closed</option>
+                  <option value="lost">Lost</option>
+                </select>
+                <button class="btn btn-accent" onclick="showPage('generator', document.querySelectorAll('.nav-item')[1])">+ New</button>
+              </div>
+            </div>
+            <table id="proposals-table">
+              <thead><tr><th>Job</th><th>Platform</th><th>Niche</th><th>Budget</th><th>Margin</th><th>Status</th></tr></thead>
+              <tbody id="proposals-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PIPELINE -->
+        <div class="section" id="page-pipeline">
+          <div class="pipeline-cols">
+            <div class="pipeline-col">
+              <div class="pipeline-col-header"><div class="pipeline-col-title">Proposals sent</div><div class="pipeline-col-count">38</div></div>
+              <div class="pipeline-deal"><div class="deal-title">Mobile app MVP</div><div class="deal-client">TechStart Inc.</div><div class="deal-value">$2,400</div></div>
+              <div class="pipeline-deal"><div class="deal-title">WordPress redesign</div><div class="deal-client">StyleMaven</div><div class="deal-value">$450</div></div>
+              <div class="pipeline-deal"><div class="deal-title">Landing page</div><div class="deal-client">GrowthCo</div><div class="deal-value">$320</div></div>
+            </div>
+            <div class="pipeline-col">
+              <div class="pipeline-col-header"><div class="pipeline-col-title">Negotiating</div><div class="pipeline-col-count">9</div></div>
+              <div class="pipeline-deal"><div class="deal-title">React dashboard</div><div class="deal-client">SaaS Labs</div><div class="deal-value">$850</div></div>
+              <div class="pipeline-deal"><div class="deal-title">iOS fitness tracker</div><div class="deal-client">FitLife App</div><div class="deal-value">$3,800</div></div>
+            </div>
+            <div class="pipeline-col">
+              <div class="pipeline-col-header"><div class="pipeline-col-title">Contract sent</div><div class="pipeline-col-count">3</div></div>
+              <div class="pipeline-deal"><div class="deal-title">E-commerce store</div><div class="deal-client">StyleMaven</div><div class="deal-value">$1,200</div></div>
+            </div>
+            <div class="pipeline-col">
+              <div class="pipeline-col-header"><div class="pipeline-col-title">Closed / won</div><div class="pipeline-col-count">12</div></div>
+              <div class="pipeline-deal"><div class="deal-title">REST API integration</div><div class="deal-client">DevCorp</div><div class="deal-value">$1,200 ✓</div></div>
+              <div class="pipeline-deal"><div class="deal-title">Portfolio site</div><div class="deal-client">Jane D.</div><div class="deal-value">$380 ✓</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Revenue summary</div></div>
+            <div style="position:relative;height:200px;"><canvas id="pipeline-chart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- TEAM -->
+        <div class="section" id="page-team">
+          <div class="tip">Rate your developers after every job. Track on-time delivery and revisions to know who to trust with high-value clients.</div>
+          <div class="dev-grid">
+            <div class="dev-card">
+              <div class="dev-header">
+                <div class="dev-avatar" style="background:#e6f1fb;color:#185fa5;">TM</div>
+                <div><div class="dev-name">Thabo M.</div><div class="dev-skill">React · Node.js · TypeScript</div><div class="rating-stars">★★★★★ <span style="color:var(--muted);font-size:0.75rem;">4.9</span></div></div>
+              </div>
+              <div class="dev-stats">
+                <div class="dev-stat"><div class="dev-stat-val">3</div><div class="dev-stat-label">Jobs done</div></div>
+                <div class="dev-stat"><div class="dev-stat-val">100%</div><div class="dev-stat-label">On-time</div></div>
+                <div class="dev-stat"><div class="dev-stat-val">0.3</div><div class="dev-stat-label">Revisions</div></div>
+              </div>
+              <div style="display:flex;gap:6px;"><span class="badge badge-active">Active</span><span style="font-size:0.75rem;color:var(--muted);padding:3px 0;">$25/hr dev rate</span></div>
+            </div>
+            <div class="dev-card">
+              <div class="dev-header">
+                <div class="dev-avatar" style="background:#e1f5ee;color:#0f6e56;">PK</div>
+                <div><div class="dev-name">Priya K.</div><div class="dev-skill">Flutter · iOS · Android</div><div class="rating-stars">★★★★★ <span style="color:var(--muted);font-size:0.75rem;">4.8</span></div></div>
+              </div>
+              <div class="dev-stats">
+                <div class="dev-stat"><div class="dev-stat-val">5</div><div class="dev-stat-label">Jobs done</div></div>
+                <div class="dev-stat"><div class="dev-stat-val">92%</div><div class="dev-stat-label">On-time</div></div>
+                <div class="dev-stat"><div class="dev-stat-val">0.8</div><div class="dev-stat-label">Revisions</div></div>
+              </div>
+              <div style="display:flex;gap:6px;"><span class="badge badge-active">Active</span><span style="font-size:0.75rem;color:var(--muted);padding:3px 0;">$30/hr dev rate</span></div>
+            </div>
+            <div class="dev-card">
+              <div class="dev-header">
+                <div class="dev-avatar" style="background:#eeedfe;color:#534ab7;">LN</div>
+                <div><div class="dev-name">Luca N.</div><div class="dev-skill">WordPress · Shopify · PHP</div><div class="rating-stars">★★★★☆ <span style="color:var(--muted);font-size:0.75rem;">4.7</span></div></div>
+              </div>
+              <div class="dev-stats">
+                <div class="dev-stat"><div class="dev-stat-val">8</div><div class="dev-stat-label">Jobs done</div></div>
+                <div class="dev-stat"><div class="dev-stat-val">96%</div><div class="dev-stat-label">On-time</div></div>
+                <div class="dev-stat"><div class="dev-stat-val">0.5</div><div class="dev-stat-label">Revisions</div></div>
+              </div>
+              <div style="display:flex;gap:6px;"><span class="badge badge-active">Active</span><span style="font-size:0.75rem;color:var(--muted);padding:3px 0;">$18/hr dev rate</span></div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <button class="btn btn-accent" onclick="sendPrompt('Give me a developer vetting checklist for my BPO business — what to look for when hiring freelance developers to outsource work to')">Get vetting checklist ↗</button>
+          </div>
+        </div>
+
+        <!-- ADMIN -->
+        <div class="section" id="page-admin">
+          <div class="tip">Admin panel — manage users, monitor platform health, and track subscription revenue.</div>
+          <div class="admin-grid">
+            <div class="admin-metric"><div class="admin-label">Total users</div><div class="admin-value">1</div></div>
+            <div class="admin-metric"><div class="admin-label">Active subscriptions</div><div class="admin-value">0</div></div>
+            <div class="admin-metric"><div class="admin-label">MRR</div><div class="admin-value">$0</div></div>
+            <div class="admin-metric"><div class="admin-label">AI proposals generated</div><div class="admin-value" id="admin-gen-count">0</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Users</div></div>
+            <table>
+              <thead><tr><th>Email</th><th>Plan</th><th>Joined</th><th>Proposals generated</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td id="admin-user-email">demo@bpohub.com</td><td>Free</td><td>Today</td><td id="admin-user-gen">0</td><td><span class="badge badge-active">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Platform settings</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div class="form-group"><label>Anthropic API key</label><input type="password" placeholder="sk-ant-..." /></div>
+              <div class="form-group"><label>Stripe secret key</label><input type="password" placeholder="sk_live_..." /></div>
+              <div class="form-group"><label>App name</label><input type="text" value="BPO Hub" /></div>
+              <button class="btn btn-accent" style="width:fit-content;" onclick="alert('Settings saved!')">Save settings</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let genCount = 0;
+let currentUser = null;
+
+const proposalsData = [
+  { job: 'React dashboard for SaaS', platform: 'Upwork', niche: 'Web dev', budget: '$850', margin: '40%', status: 'replied' },
+  { job: 'Mobile app MVP (Flutter)', platform: 'Upwork', niche: 'App dev', budget: '$2,400', margin: '35%', status: 'sent' },
+  { job: 'WordPress site redesign', platform: 'Freelancer', niche: 'Web dev', budget: '$450', margin: '45%', status: 'sent' },
+  { job: 'REST API integration', platform: 'Upwork', niche: 'App dev', budget: '$1,200', margin: '38%', status: 'closed' },
+  { job: 'E-commerce store build', platform: 'Freelancer', niche: 'Web dev', budget: '$700', margin: '—', status: 'lost' },
+  { job: 'Landing page + copywriting', platform: 'Upwork', niche: 'Web dev', budget: '$320', margin: '50%', status: 'pending' },
+  { job: 'iOS app — fitness tracker', platform: 'Upwork', niche: 'App dev', budget: '$3,800', margin: '30%', status: 'replied' },
+];
+
+function renderProposals(filter = 'all') {
+  const body = document.getElementById('proposals-body');
+  const filtered = filter === 'all' ? proposalsData : proposalsData.filter(p => p.status === filter);
+  body.innerHTML = filtered.map(p => `
+    <tr>
+      <td>${p.job}</td><td>${p.platform}</td><td>${p.niche}</td>
+      <td>${p.budget}</td><td>${p.margin}</td>
+      <td><span class="badge badge-${p.status}">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</span></td>
+    </tr>`).join('');
+}
+
+function filterProposals(val) { renderProposals(val); }
+
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
+  document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'flex' : 'none';
+}
+
+function login() {
+  const email = document.getElementById('login-email').value || 'demo@bpohub.com';
+  currentUser = { email, name: email.split('@')[0] };
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('user-email-display').textContent = email;
+  document.getElementById('user-name-display').textContent = currentUser.name;
+  document.getElementById('user-av').textContent = currentUser.name[0].toUpperCase();
+  document.getElementById('admin-user-email').textContent = email;
+  renderProposals();
+  initCharts();
+}
+
+function logout() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display = 'none';
+}
+
+const pageMeta = {
+  dashboard: ['Dashboard', 'Your BPO operations at a glance'],
+  generator: ['AI Proposal Generator', 'Generate winning proposals instantly'],
+  proposals: ['Proposals', 'Track every proposal you send'],
+  pipeline: ['Pipeline', 'Manage deals from proposal to payment'],
+  team: ['Dev Team', 'Your outsourced developer network'],
+  admin: ['Admin Panel', 'Platform management & settings'],
+};
+
+function showPage(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = pageMeta[id][0];
+  document.getElementById('page-sub').textContent = pageMeta[id][1];
+}
+
+async function generateProposal() {
+  const desc = document.getElementById('g-desc').value.trim();
+  if (!desc) { alert('Please paste a job description first.'); return; }
+  const platform = document.getElementById('g-platform').value;
+  const niche = document.getElementById('g-niche').value;
+  const budget = document.getElementById('g-budget').value;
+  const tone = document.getElementById('g-tone').value;
+  const devRate = document.getElementById('g-rate').value;
+
+  const out = document.getElementById('g-output');
+  out.innerHTML = '<span class="loading">Generating your proposal</span>';
+  document.getElementById('copy-btn').style.display = 'none';
+  document.getElementById('regen-btn').style.display = 'none';
+  document.getElementById('quick-actions').style.display = 'none';
+  document.getElementById('margin-display').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: `You are an expert BPO proposal writer. Write a personalized, high-converting proposal for this job.\n\nPlatform: ${platform}\nNiche: ${niche}\nBudget: ${budget||'unspecified'}\nTone: ${tone}\n\nJob description:\n${desc}\n\nRules:\n- Open with a hook showing you read the job\n- Be specific to their needs\n- Keep it 150-250 words\n- End with a clear CTA\n- No generic openers like "I am writing to express my interest"\n- Sound human, not robotic\n\nReturn ONLY the proposal text.` }] })
+    });
+    const data = await res.json();
+    const text = data.content.map(b => b.text||'').join('');
+    out.textContent = text;
+    document.getElementById('copy-btn').style.display = 'inline-flex';
+    document.getElementById('regen-btn').style.display = 'inline-flex';
+    document.getElementById('quick-actions').style.display = 'flex';
+
+    if (budget && devRate) {
+      const clientAmt = parseFloat(budget.replace(/[^0-9.]/g,''));
+      const devAmt = parseFloat(devRate.replace(/[^0-9.]/g,''));
+      if (clientAmt && devAmt && clientAmt > devAmt) {
+        const margin = Math.round(((clientAmt - devAmt) / clientAmt) * 100);
+        document.getElementById('margin-val').textContent = `$${Math.round(clientAmt - devAmt)} (${margin}% margin)`;
+        document.getElementById('margin-display').style.display = 'block';
+      }
+    }
+
+    genCount++;
+    document.getElementById('admin-gen-count').textContent = genCount;
+    document.getElementById('admin-user-gen').textContent = genCount;
+  } catch(e) {
+    out.textContent = 'Something went wrong. Please try again.';
+  }
+}
+
+function copyProposal() {
+  navigator.clipboard.writeText(document.getElementById('g-output').textContent).catch(()=>{});
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+function clearGen() {
+  document.getElementById('g-desc').value = '';
+  document.getElementById('g-budget').value = '';
+  document.getElementById('g-rate').value = '';
+  document.getElementById('g-output').textContent = 'Your proposal will appear here after generation...';
+  document.getElementById('copy-btn').style.display = 'none';
+  document.getElementById('regen-btn').style.display = 'none';
+  document.getElementById('quick-actions').style.display = 'none';
+  document.getElementById('margin-display').style.display = 'none';
+}
+
+function initCharts() {
+  new Chart(document.getElementById('dash-chart1'), {
+    type: 'bar',
+    data: { labels: ['Wk 1','Wk 2','Wk 3','Wk 4'], datasets: [
+      { label: 'Sent', data: [45,60,72,70], backgroundColor: '#d4d0c8' },
+      { label: 'Replied', data: [6,9,14,15], backgroundColor: '#d4521a' }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}}}, scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(0,0,0,0.05)'}}} }
+  });
+  new Chart(document.getElementById('dash-chart2'), {
+    type: 'doughnut',
+    data: { labels: ['Web dev','App dev','Other'], datasets: [{ data:[58,34,8], backgroundColor:['#d4521a','#0a0a0a','#b4b2a9'], borderWidth:0 }]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}}}, cutout:'65%' }
+  });
+  new Chart(document.getElementById('pipeline-chart'), {
+    type: 'bar',
+    data: { labels: ['Jan','Feb','Mar','Apr'], datasets: [{ label: 'Revenue ($)', data:[0,380,1200,2150], backgroundColor:'#d4521a', borderRadius:6 }]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(0,0,0,0.05)'}}} }
+  });
+}
+</script>
+</body>
+</html>
