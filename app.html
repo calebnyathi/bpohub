@@ -17,10 +17,7 @@
   body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); }
 
   /* LOADING */
-  #loading-screen {
-    position: fixed; inset: 0; background: var(--paper);
-    display: flex; align-items: center; justify-content: center; z-index: 300;
-  }
+  #loading-screen { position: fixed; inset: 0; background: var(--paper); display: flex; align-items: center; justify-content: center; z-index: 300; }
   .loading-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; }
   .loading-logo span { color: var(--accent); }
   .loading-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 2px; animation: bounce 1.2s ease-in-out infinite; }
@@ -29,33 +26,18 @@
   @keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:0.4} 40%{transform:translateY(-6px);opacity:1} }
 
   /* AUTH */
-  #auth-screen {
-    position: fixed; inset: 0; background: var(--paper);
-    display: none; align-items: center; justify-content: center; z-index: 200;
-  }
-  .auth-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
-    padding: 2.5rem; width: 100%; max-width: 420px;
-  }
+  #auth-screen { position: fixed; inset: 0; background: var(--paper); display: none; align-items: center; justify-content: center; z-index: 200; }
+  .auth-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 420px; }
   .auth-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem; }
   .auth-logo span { color: var(--accent); }
   .auth-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; }
-  .auth-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
   .auth-tab { padding: 0.5rem 1.25rem; font-size: 0.9rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; background: none; border-top: none; border-left: none; border-right: none; }
   .auth-tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 500; }
   .auth-form { display: flex; flex-direction: column; gap: 12px; }
-  .auth-form input {
-    width: 100%; padding: 10px 14px; border: 1px solid var(--border);
-    border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
-    background: var(--paper); color: var(--ink); outline: none;
-    transition: border-color 0.2s;
-  }
+  .auth-form input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); outline: none; transition: border-color 0.2s; }
   .auth-form input:focus { border-color: var(--accent); }
-  .auth-btn {
-    background: var(--ink); color: var(--paper); padding: 11px;
-    border-radius: 100px; border: none; cursor: pointer; font-size: 0.95rem;
-    font-family: 'DM Sans', sans-serif; font-weight: 500; transition: background 0.2s; margin-top: 4px;
-  }
+  .auth-btn { background: var(--ink); color: var(--paper); padding: 11px; border-radius: 100px; border: none; cursor: pointer; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: background 0.2s; margin-top: 4px; }
   .auth-btn:hover { background: var(--accent); }
   .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
   .auth-error { font-size: 0.82rem; color: #c0392b; background: #fcebeb; border-radius: 8px; padding: 8px 12px; display: none; }
@@ -65,41 +47,21 @@
   .auth-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
   .auth-divider::before, .auth-divider::after { content:''; flex:1; height: 1px; background: var(--border); }
   .auth-divider span { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-  .google-btn {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 10px; border: 1px solid var(--border); border-radius: 100px;
-    cursor: pointer; background: var(--card); font-size: 0.9rem;
-    font-family: 'DM Sans', sans-serif; transition: background 0.2s; width: 100%;
-  }
+  .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 100px; cursor: pointer; background: var(--card); font-size: 0.9rem; font-family: 'DM Sans', sans-serif; transition: background 0.2s; width: 100%; }
   .google-btn:hover { background: var(--paper); }
   .reset-link { font-size: 0.8rem; color: var(--accent); cursor: pointer; text-align: right; text-decoration: underline; margin-top: -4px; }
-
-  /* SETUP BANNER */
-  .setup-banner {
-    background: #faeeda; border: 1px solid #ef9f27; border-radius: 10px;
-    padding: 10px 14px; font-size: 0.82rem; color: #633806; margin-bottom: 1rem;
-    display: none;
-  }
+  .setup-banner { background: #faeeda; border: 1px solid #ef9f27; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: #633806; margin-bottom: 1rem; display: none; }
   .setup-banner a { color: var(--accent); font-weight: 600; }
 
-  /* APP LAYOUT */
+  /* APP */
   #app-screen { display: none; height: 100vh; overflow: hidden; }
   .app-wrap { display: flex; height: 100vh; }
-
-  /* SIDEBAR */
-  .sidebar {
-    width: var(--sidebar-w); background: var(--card); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
-  }
+  .sidebar { width: var(--sidebar-w); background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
   .sidebar-logo { padding: 1.25rem 1.25rem 1rem; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; border-bottom: 1px solid var(--border); }
   .sidebar-logo span { color: var(--accent); }
   .sidebar-logo small { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 400; color: var(--muted); margin-top: 2px; }
   .sidebar-section { padding: 1rem 0.75rem 0.25rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-    margin: 1px 8px; border-radius: 8px; cursor: pointer;
-    font-size: 0.875rem; color: var(--muted); transition: all 0.15s;
-  }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin: 1px 8px; border-radius: 8px; cursor: pointer; font-size: 0.875rem; color: var(--muted); transition: all 0.15s; }
   .nav-item:hover { background: var(--paper); color: var(--ink); }
   .nav-item.active { background: var(--ink); color: var(--paper); }
   .nav-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
@@ -110,8 +72,6 @@
   .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--paper); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; }
   .user-name { font-size: 0.85rem; font-weight: 500; }
   .user-plan { font-size: 0.7rem; color: var(--muted); }
-
-  /* MAIN */
   .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
   .topbar-left h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
@@ -125,18 +85,17 @@
   .section { display: none; }
   .section.active { display: block; }
 
-  /* CARDS & METRICS */
+  /* CARDS */
   .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 1.5rem; }
   .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
   .metric-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
   .metric-value { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 700; }
   .metric-change { font-size: 0.75rem; margin-top: 4px; }
-  .up { color: #2d7a2d; } .down { color: #c0392b; }
+  .up { color: #2d7a2d; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; }
   .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
   .card-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
 
   /* TABLE */
   table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -179,15 +138,11 @@
   .dev-stat-label { font-size: 0.65rem; color: var(--muted); }
   .rating-stars { color: var(--accent); font-size: 0.8rem; }
 
-  /* PROPOSAL GEN */
+  /* GENERATOR */
   .gen-form { display: flex; flex-direction: column; gap: 12px; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-group label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 9px 12px; border: 1px solid var(--border);
-    border-radius: 10px; font-size: 0.875rem; font-family: 'DM Sans', sans-serif;
-    background: var(--paper); color: var(--ink); outline: none; transition: border-color 0.2s;
-  }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.875rem; font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); outline: none; transition: border-color 0.2s; }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
   .form-group textarea { resize: none; line-height: 1.6; }
   .output-area { background: var(--paper); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; font-size: 0.875rem; line-height: 1.8; min-height: 140px; white-space: pre-wrap; color: var(--ink); }
@@ -201,49 +156,36 @@
 
   /* MISC */
   .tip { background: #e6f1fb; border-left: 3px solid var(--accent2); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 0.82rem; color: #185fa5; line-height: 1.6; margin-bottom: 1rem; }
-  .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.9rem; }
-  .loading::after { content: '...'; animation: dots 1s steps(3) infinite; }
+  .loading-text::after { content: '...'; animation: dots 1s steps(3) infinite; }
   @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
-
-  /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(10,10,10,0.5); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-  .modal-box { background: var(--card); border-radius: 16px; padding: 2rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
-  .modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; }
-  .modal-close { float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--muted); }
 </style>
 </head>
 <body>
 
-<!-- LOADING SCREEN -->
+<!-- LOADING -->
 <div id="loading-screen">
   <div style="text-align:center;">
     <div class="loading-logo">BPO<span>Hub</span></div>
     <div style="margin-top:16px;">
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
+      <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
     </div>
   </div>
 </div>
 
-<!-- AUTH SCREEN -->
+<!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">BPO<span>Hub</span></div>
     <div class="auth-sub">Your AI-powered BPO command center</div>
-
-    <!-- SETUP WARNING — shown when Supabase not configured -->
     <div class="setup-banner" id="setup-banner">
-      ⚙️ Supabase not configured yet. Add your <strong>SUPABASE_URL</strong> and <strong>SUPABASE_ANON_KEY</strong> at the top of this file. <a href="https://supabase.com" target="_blank">Create a free project →</a>
+      ⚙️ Supabase not configured yet. Add your <strong>SUPABASE_URL</strong> and <strong>SUPABASE_ANON_KEY</strong> at the top of the script. <a href="https://supabase.com" target="_blank">Create a free project →</a>
     </div>
-
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchTab('login')">Sign in</button>
       <button class="auth-tab" onclick="switchTab('signup')">Create account</button>
-      <button class="auth-tab" onclick="switchTab('reset')" id="reset-tab" style="display:none;">Reset password</button>
+      <button class="auth-tab" id="reset-tab" onclick="switchTab('reset')" style="display:none;">Reset password</button>
     </div>
 
-    <!-- SIGN IN -->
     <div id="login-form" class="auth-form">
       <div id="login-error" class="auth-error"></div>
       <div id="login-success" class="auth-success"></div>
@@ -258,7 +200,6 @@
       </button>
     </div>
 
-    <!-- SIGN UP -->
     <div id="signup-form" class="auth-form" style="display:none;">
       <div id="signup-error" class="auth-error"></div>
       <div id="signup-success" class="auth-success"></div>
@@ -273,7 +214,6 @@
       </button>
     </div>
 
-    <!-- RESET PASSWORD -->
     <div id="reset-form" class="auth-form" style="display:none;">
       <div id="reset-error" class="auth-error"></div>
       <div id="reset-success" class="auth-success"></div>
@@ -289,8 +229,8 @@
 <div id="app-screen">
   <div class="app-wrap">
     <div class="sidebar">
-      <div class="sidebar-logo">BPO<span>Hub</span><small id="user-email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="eb8f8e8684ab899b84839e89c5888486">[email&#160;protected]</a></small></div>
-      <div style="padding: 0.5rem 0;">
+      <div class="sidebar-logo">BPO<span>Hub</span><small id="user-email-display">loading...</small></div>
+      <div style="padding:0.5rem 0;">
         <div class="sidebar-section">Main</div>
         <div class="nav-item active" onclick="showPage('dashboard',this)">
           <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="7" height="7" rx="1.5"/><rect x="10" y="1" width="7" height="7" rx="1.5"/><rect x="1" y="10" width="7" height="7" rx="1.5"/><rect x="10" y="10" width="7" height="7" rx="1.5"/></svg>
@@ -298,8 +238,7 @@
         </div>
         <div class="nav-item" onclick="showPage('generator',this)">
           <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 6v3l2 2"/></svg>
-          AI Generator
-          <span class="nav-badge">AI</span>
+          AI Generator <span class="nav-badge">AI</span>
         </div>
         <div class="sidebar-section">Track</div>
         <div class="nav-item" onclick="showPage('proposals',this)">
@@ -322,11 +261,8 @@
       </div>
       <div class="sidebar-footer">
         <div class="user-pill" onclick="logout()">
-          <div class="user-avatar" id="user-av">D</div>
-          <div>
-            <div class="user-name" id="user-name-display">Demo User</div>
-            <div class="user-plan">Free plan · Sign out</div>
-          </div>
+          <div class="user-avatar" id="user-av">?</div>
+          <div><div class="user-name" id="user-name-display">Loading...</div><div class="user-plan">Free plan · Sign out</div></div>
         </div>
       </div>
     </div>
@@ -338,8 +274,8 @@
           <p id="page-sub">Your BPO operations at a glance</p>
         </div>
         <div class="topbar-actions">
-          <button class="btn" onclick="showPage('proposals', document.querySelectorAll('.nav-item')[2])">View proposals</button>
-          <button class="btn btn-accent" onclick="showPage('generator', document.querySelectorAll('.nav-item')[1])">+ Generate proposal</button>
+          <button class="btn" onclick="showPage('proposals',document.querySelectorAll('.nav-item')[2])">View proposals</button>
+          <button class="btn btn-accent" onclick="showPage('generator',document.querySelectorAll('.nav-item')[1])">+ Generate proposal</button>
         </div>
       </div>
 
@@ -348,41 +284,18 @@
         <!-- DASHBOARD -->
         <div class="section active" id="page-dashboard">
           <div class="metrics">
-            <div class="metric-card">
-              <div class="metric-label">Total proposals sent</div>
-              <div class="metric-value">247</div>
-              <div class="metric-change up">↑ 38 this week</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Response rate</div>
-              <div class="metric-value">18%</div>
-              <div class="metric-change up">↑ 3% vs last month</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Active pipeline</div>
-              <div class="metric-value">$8,400</div>
-              <div class="metric-change">12 open deals</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Revenue this month</div>
-              <div class="metric-value">$2,150</div>
-              <div class="metric-change up">↑ $900 vs last month</div>
-            </div>
+            <div class="metric-card"><div class="metric-label">Total proposals sent</div><div class="metric-value">247</div><div class="metric-change up">↑ 38 this week</div></div>
+            <div class="metric-card"><div class="metric-label">Response rate</div><div class="metric-value">18%</div><div class="metric-change up">↑ 3% vs last month</div></div>
+            <div class="metric-card"><div class="metric-label">Active pipeline</div><div class="metric-value">$8,400</div><div class="metric-change">12 open deals</div></div>
+            <div class="metric-card"><div class="metric-label">Revenue this month</div><div class="metric-value">$2,150</div><div class="metric-change up">↑ $900 vs last month</div></div>
           </div>
           <div class="grid-2">
-            <div class="card">
-              <div class="card-header"><div class="card-title">Weekly proposals</div></div>
-              <div style="position:relative;height:180px;"><canvas id="dash-chart1"></canvas></div>
-            </div>
-            <div class="card">
-              <div class="card-header"><div class="card-title">Revenue by niche</div></div>
-              <div style="position:relative;height:180px;"><canvas id="dash-chart2"></canvas></div>
-            </div>
+            <div class="card"><div class="card-header"><div class="card-title">Weekly proposals</div></div><div style="position:relative;height:180px;"><canvas id="dash-chart1"></canvas></div></div>
+            <div class="card"><div class="card-header"><div class="card-title">Revenue by niche</div></div><div style="position:relative;height:180px;"><canvas id="dash-chart2"></canvas></div></div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Recent proposals</div><button class="btn" onclick="showPage('proposals', document.querySelectorAll('.nav-item')[2])">View all</button></div>
-            <table>
-              <thead><tr><th>Job</th><th>Platform</th><th>Sent</th><th>Status</th><th>Value</th></tr></thead>
+            <div class="card-header"><div class="card-title">Recent proposals</div><button class="btn" onclick="showPage('proposals',document.querySelectorAll('.nav-item')[2])">View all</button></div>
+            <table><thead><tr><th>Job</th><th>Platform</th><th>Sent</th><th>Status</th><th>Value</th></tr></thead>
               <tbody>
                 <tr><td>React dashboard for SaaS</td><td>Upwork</td><td>2h ago</td><td><span class="badge badge-replied">Replied</span></td><td>$850</td></tr>
                 <tr><td>Mobile app MVP (Flutter)</td><td>Upwork</td><td>4h ago</td><td><span class="badge badge-sent">Sent</span></td><td>$2,400</td></tr>
@@ -401,33 +314,15 @@
               <div class="card-header"><div class="card-title">Job details</div></div>
               <div class="gen-form">
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>Platform</label>
-                    <select id="g-platform"><option>Upwork</option><option>Freelancer</option><option>Fiverr</option><option>LinkedIn</option></select>
-                  </div>
-                  <div class="form-group">
-                    <label>Niche</label>
-                    <select id="g-niche"><option>Web development</option><option>App development</option><option>UI/UX design</option><option>E-commerce</option><option>Other</option></select>
-                  </div>
+                  <div class="form-group"><label>Platform</label><select id="g-platform"><option>Upwork</option><option>Freelancer</option><option>Fiverr</option><option>LinkedIn</option></select></div>
+                  <div class="form-group"><label>Niche</label><select id="g-niche"><option>Web development</option><option>App development</option><option>UI/UX design</option><option>E-commerce</option><option>Other</option></select></div>
                 </div>
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>Client budget (USD)</label>
-                    <input type="text" id="g-budget" placeholder="e.g. $500–$1,000" />
-                  </div>
-                  <div class="form-group">
-                    <label>Tone</label>
-                    <select id="g-tone"><option>Professional & confident</option><option>Friendly & conversational</option><option>Direct & concise</option><option>Enthusiastic</option></select>
-                  </div>
+                  <div class="form-group"><label>Client budget (USD)</label><input type="text" id="g-budget" placeholder="e.g. $500–$1,000" /></div>
+                  <div class="form-group"><label>Tone</label><select id="g-tone"><option>Professional & confident</option><option>Friendly & conversational</option><option>Direct & concise</option><option>Enthusiastic</option></select></div>
                 </div>
-                <div class="form-group">
-                  <label>Your proposed rate (for margin calc)</label>
-                  <input type="text" id="g-rate" placeholder="e.g. $400 (what you'll pay developer)" />
-                </div>
-                <div class="form-group">
-                  <label>Job description</label>
-                  <textarea id="g-desc" rows="7" placeholder="Paste the full job description from the platform here..."></textarea>
-                </div>
+                <div class="form-group"><label>Your proposed rate (for margin calc)</label><input type="text" id="g-rate" placeholder="e.g. $400 (what you'll pay developer)" /></div>
+                <div class="form-group"><label>Job description</label><textarea id="g-desc" rows="7" placeholder="Paste the full job description from the platform here..."></textarea></div>
                 <div style="display:flex;gap:8px;">
                   <button class="btn btn-accent" onclick="generateProposal()" style="flex:1;">Generate proposal →</button>
                   <button class="btn" onclick="clearGen()">Clear</button>
@@ -449,7 +344,7 @@
               <div class="quick-actions" id="quick-actions" style="display:none;">
                 <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('Give me 3 follow-up message variations for a client who has not replied to my BPO proposal on Upwork')">Follow-up messages ↗</button>
                 <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('What negotiation tactics should I use when a client says my BPO proposal price is too high?')">Negotiation tips ↗</button>
-                <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('Help me improve this BPO proposal to increase the response rate. Make it more specific and compelling.')">Improve proposal ↗</button>
+                <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('Help me improve this BPO proposal to increase the response rate')">Improve proposal ↗</button>
               </div>
             </div>
           </div>
@@ -462,19 +357,12 @@
               <div class="card-title">All proposals</div>
               <div style="display:flex;gap:8px;align-items:center;">
                 <select style="font-size:0.8rem;padding:5px 10px;border:1px solid var(--border);border-radius:100px;background:var(--paper);color:var(--ink);" onchange="filterProposals(this.value)">
-                  <option value="all">All statuses</option>
-                  <option value="sent">Sent</option>
-                  <option value="replied">Replied</option>
-                  <option value="closed">Closed</option>
-                  <option value="lost">Lost</option>
+                  <option value="all">All statuses</option><option value="sent">Sent</option><option value="replied">Replied</option><option value="closed">Closed</option><option value="lost">Lost</option>
                 </select>
-                <button class="btn btn-accent" onclick="showPage('generator', document.querySelectorAll('.nav-item')[1])">+ New</button>
+                <button class="btn btn-accent" onclick="showPage('generator',document.querySelectorAll('.nav-item')[1])">+ New</button>
               </div>
             </div>
-            <table id="proposals-table">
-              <thead><tr><th>Job</th><th>Platform</th><th>Niche</th><th>Budget</th><th>Margin</th><th>Status</th></tr></thead>
-              <tbody id="proposals-body"></tbody>
-            </table>
+            <table><thead><tr><th>Job</th><th>Platform</th><th>Niche</th><th>Budget</th><th>Margin</th><th>Status</th></tr></thead><tbody id="proposals-body"></tbody></table>
           </div>
         </div>
 
@@ -502,10 +390,7 @@
               <div class="pipeline-deal"><div class="deal-title">Portfolio site</div><div class="deal-client">Jane D.</div><div class="deal-value">$380 ✓</div></div>
             </div>
           </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">Revenue summary</div></div>
-            <div style="position:relative;height:200px;"><canvas id="pipeline-chart"></canvas></div>
-          </div>
+          <div class="card"><div class="card-header"><div class="card-title">Revenue summary</div></div><div style="position:relative;height:200px;"><canvas id="pipeline-chart"></canvas></div></div>
         </div>
 
         <!-- TEAM -->
@@ -513,45 +398,22 @@
           <div class="tip">Rate your developers after every job. Track on-time delivery and revisions to know who to trust with high-value clients.</div>
           <div class="dev-grid">
             <div class="dev-card">
-              <div class="dev-header">
-                <div class="dev-avatar" style="background:#e6f1fb;color:#185fa5;">TM</div>
-                <div><div class="dev-name">Thabo M.</div><div class="dev-skill">React · Node.js · TypeScript</div><div class="rating-stars">★★★★★ <span style="color:var(--muted);font-size:0.75rem;">4.9</span></div></div>
-              </div>
-              <div class="dev-stats">
-                <div class="dev-stat"><div class="dev-stat-val">3</div><div class="dev-stat-label">Jobs done</div></div>
-                <div class="dev-stat"><div class="dev-stat-val">100%</div><div class="dev-stat-label">On-time</div></div>
-                <div class="dev-stat"><div class="dev-stat-val">0.3</div><div class="dev-stat-label">Revisions</div></div>
-              </div>
-              <div style="display:flex;gap:6px;"><span class="badge badge-active">Active</span><span style="font-size:0.75rem;color:var(--muted);padding:3px 0;">$25/hr dev rate</span></div>
+              <div class="dev-header"><div class="dev-avatar" style="background:#e6f1fb;color:#185fa5;">TM</div><div><div class="dev-name">Thabo M.</div><div class="dev-skill">React · Node.js · TypeScript</div><div class="rating-stars">★★★★★ <span style="color:var(--muted);font-size:0.75rem;">4.9</span></div></div></div>
+              <div class="dev-stats"><div class="dev-stat"><div class="dev-stat-val">3</div><div class="dev-stat-label">Jobs done</div></div><div class="dev-stat"><div class="dev-stat-val">100%</div><div class="dev-stat-label">On-time</div></div><div class="dev-stat"><div class="dev-stat-val">0.3</div><div class="dev-stat-label">Revisions</div></div></div>
+              <span class="badge badge-active">Active</span> <span style="font-size:0.75rem;color:var(--muted);">$25/hr</span>
             </div>
             <div class="dev-card">
-              <div class="dev-header">
-                <div class="dev-avatar" style="background:#e1f5ee;color:#0f6e56;">PK</div>
-                <div><div class="dev-name">Priya K.</div><div class="dev-skill">Flutter · iOS · Android</div><div class="rating-stars">★★★★★ <span style="color:var(--muted);font-size:0.75rem;">4.8</span></div></div>
-              </div>
-              <div class="dev-stats">
-                <div class="dev-stat"><div class="dev-stat-val">5</div><div class="dev-stat-label">Jobs done</div></div>
-                <div class="dev-stat"><div class="dev-stat-val">92%</div><div class="dev-stat-label">On-time</div></div>
-                <div class="dev-stat"><div class="dev-stat-val">0.8</div><div class="dev-stat-label">Revisions</div></div>
-              </div>
-              <div style="display:flex;gap:6px;"><span class="badge badge-active">Active</span><span style="font-size:0.75rem;color:var(--muted);padding:3px 0;">$30/hr dev rate</span></div>
+              <div class="dev-header"><div class="dev-avatar" style="background:#e1f5ee;color:#0f6e56;">PK</div><div><div class="dev-name">Priya K.</div><div class="dev-skill">Flutter · iOS · Android</div><div class="rating-stars">★★★★★ <span style="color:var(--muted);font-size:0.75rem;">4.8</span></div></div></div>
+              <div class="dev-stats"><div class="dev-stat"><div class="dev-stat-val">5</div><div class="dev-stat-label">Jobs done</div></div><div class="dev-stat"><div class="dev-stat-val">92%</div><div class="dev-stat-label">On-time</div></div><div class="dev-stat"><div class="dev-stat-val">0.8</div><div class="dev-stat-label">Revisions</div></div></div>
+              <span class="badge badge-active">Active</span> <span style="font-size:0.75rem;color:var(--muted);">$30/hr</span>
             </div>
             <div class="dev-card">
-              <div class="dev-header">
-                <div class="dev-avatar" style="background:#eeedfe;color:#534ab7;">LN</div>
-                <div><div class="dev-name">Luca N.</div><div class="dev-skill">WordPress · Shopify · PHP</div><div class="rating-stars">★★★★☆ <span style="color:var(--muted);font-size:0.75rem;">4.7</span></div></div>
-              </div>
-              <div class="dev-stats">
-                <div class="dev-stat"><div class="dev-stat-val">8</div><div class="dev-stat-label">Jobs done</div></div>
-                <div class="dev-stat"><div class="dev-stat-val">96%</div><div class="dev-stat-label">On-time</div></div>
-                <div class="dev-stat"><div class="dev-stat-val">0.5</div><div class="dev-stat-label">Revisions</div></div>
-              </div>
-              <div style="display:flex;gap:6px;"><span class="badge badge-active">Active</span><span style="font-size:0.75rem;color:var(--muted);padding:3px 0;">$18/hr dev rate</span></div>
+              <div class="dev-header"><div class="dev-avatar" style="background:#eeedfe;color:#534ab7;">LN</div><div><div class="dev-name">Luca N.</div><div class="dev-skill">WordPress · Shopify · PHP</div><div class="rating-stars">★★★★☆ <span style="color:var(--muted);font-size:0.75rem;">4.7</span></div></div></div>
+              <div class="dev-stats"><div class="dev-stat"><div class="dev-stat-val">8</div><div class="dev-stat-label">Jobs done</div></div><div class="dev-stat"><div class="dev-stat-val">96%</div><div class="dev-stat-label">On-time</div></div><div class="dev-stat"><div class="dev-stat-val">0.5</div><div class="dev-stat-label">Revisions</div></div></div>
+              <span class="badge badge-active">Active</span> <span style="font-size:0.75rem;color:var(--muted);">$18/hr</span>
             </div>
           </div>
-          <div style="margin-top:1rem;">
-            <button class="btn btn-accent" onclick="sendPrompt('Give me a developer vetting checklist for my BPO business — what to look for when hiring freelance developers to outsource work to')">Get vetting checklist ↗</button>
-          </div>
+          <div style="margin-top:1rem;"><button class="btn btn-accent" onclick="sendPrompt('Give me a developer vetting checklist for my BPO business')">Get vetting checklist ↗</button></div>
         </div>
 
         <!-- ADMIN -->
@@ -565,11 +427,8 @@
           </div>
           <div class="card">
             <div class="card-header"><div class="card-title">Users</div></div>
-            <table>
-              <thead><tr><th>Email</th><th>Plan</th><th>Joined</th><th>Proposals generated</th><th>Status</th></tr></thead>
-              <tbody>
-                <tr><td id="admin-user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8aeeefe7e5cae8fae5e2ffe8a4e9e5e7">[email&#160;protected]</a></td><td>Free</td><td>Today</td><td id="admin-user-gen">0</td><td><span class="badge badge-active">Active</span></td></tr>
-              </tbody>
+            <table><thead><tr><th>Email</th><th>Plan</th><th>Joined</th><th>Proposals generated</th><th>Status</th></tr></thead>
+              <tbody><tr><td id="admin-user-email">—</td><td>Free</td><td>Today</td><td id="admin-user-gen">0</td><td><span class="badge badge-active">Active</span></td></tr></tbody>
             </table>
           </div>
           <div class="card">
@@ -588,18 +447,17 @@
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ============================================================
-// SUPABASE CONFIGURATION
-// Replace these two values with your own from supabase.com
-// Project Settings → API → Project URL & anon/public key
+// SUPABASE CONFIGURATION — replace with your values
+// supabase.com → your project → Settings → API
 // ============================================================
-const SUPABASE_URL = 'https://bjzzxwomxgnknblbkzuf.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqenp4d29teGdua25ibGJrenVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNzI2MjYsImV4cCI6MjA5MDc0ODYyNn0.hi67wN1z5MbzXNxUUiL_BslASTs1GRXlVLZWOPe2f-8';
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 // ============================================================
 
-const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 const supabase = isConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let genCount = 0;
@@ -616,192 +474,137 @@ const proposalsData = [
   { job: 'iOS app — fitness tracker', platform: 'Upwork', niche: 'App dev', budget: '$3,800', margin: '30%', status: 'replied' },
 ];
 
-// ── AUTH INIT ──────────────────────────────────────────────
+// ── AUTH ──────────────────────────────────────────────────
 async function initAuth() {
-  // Show setup banner if not configured
   if (!isConfigured) {
     document.getElementById('setup-banner').style.display = 'block';
     document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('auth-screen').style.display = 'flex';
     return;
   }
-
-  // Check for existing session
   const { data: { session } } = await supabase.auth.getSession();
   document.getElementById('loading-screen').style.display = 'none';
-
-  if (session?.user) {
-    enterApp(session.user);
-  } else {
-    document.getElementById('auth-screen').style.display = 'flex';
-  }
-
-  // Listen for auth state changes (login, logout, token refresh)
-  supabase.auth.onAuthStateChange((_event, session) => {
-    if (session?.user) {
-      enterApp(session.user);
-    } else {
-      exitApp();
-    }
+  if (session?.user) { enterApp(session.user); }
+  else { document.getElementById('auth-screen').style.display = 'flex'; }
+  supabase.auth.onAuthStateChange((_e, session) => {
+    if (session?.user) { enterApp(session.user); } else { exitApp(); }
   });
 }
 
-// ── ENTER / EXIT APP ──────────────────────────────────────
 function enterApp(user) {
   currentUser = user;
-  const displayName = user.user_metadata?.full_name || user.email.split('@')[0];
-  const initial = displayName[0].toUpperCase();
-
+  const name = user.user_metadata?.full_name || user.email.split('@')[0];
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app-screen').style.display = 'block';
   document.getElementById('user-email-display').textContent = user.email;
-  document.getElementById('user-name-display').textContent = displayName;
-  document.getElementById('user-av').textContent = initial;
+  document.getElementById('user-name-display').textContent = name;
+  document.getElementById('user-av').textContent = name[0].toUpperCase();
   document.getElementById('admin-user-email').textContent = user.email;
-
   renderProposals();
   if (!chartsInitialized) { initCharts(); chartsInitialized = true; }
 }
 
 function exitApp() {
-  currentUser = null;
-  chartsInitialized = false;
+  currentUser = null; chartsInitialized = false;
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
 }
 
-// ── AUTH HANDLERS ─────────────────────────────────────────
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.style.display = 'block';
-}
-function showSuccess(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.style.display = 'block';
+function showAuthMsg(id, msg, type) {
+  const el = document.getElementById(id + '-' + type); el.textContent = msg; el.style.display = 'block';
 }
 function clearMessages(prefix) {
-  ['error','success'].forEach(t => {
-    const el = document.getElementById(prefix+'-'+t);
-    if (el) { el.textContent = ''; el.style.display = 'none'; }
-  });
+  ['error','success'].forEach(t => { const el = document.getElementById(prefix+'-'+t); if (el) { el.textContent=''; el.style.display='none'; } });
 }
-function setLoading(btnId, loading, label) {
-  const btn = document.getElementById(btnId);
-  btn.disabled = loading;
-  btn.textContent = loading ? 'Please wait...' : label;
+function setBtnLoading(id, loading, label) {
+  const b = document.getElementById(id); b.disabled = loading; b.textContent = loading ? 'Please wait...' : label;
 }
 
 async function handleLogin() {
-  if (!isConfigured) { showError('login-error', 'Please configure Supabase first.'); return; }
+  if (!isConfigured) { showAuthMsg('login','Please configure Supabase first.','error'); return; }
   clearMessages('login');
   const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-pass').value;
-  if (!email || !password) { showError('login-error', 'Please fill in all fields.'); return; }
-
-  setLoading('login-btn', true, 'Sign in →');
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  setLoading('login-btn', false, 'Sign in →');
-
-  if (error) { showError('login-error', error.message); }
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAuthMsg('login','Please fill in all fields.','error'); return; }
+  setBtnLoading('login-btn', true, 'Sign in →');
+  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  setBtnLoading('login-btn', false, 'Sign in →');
+  if (error) showAuthMsg('login', error.message, 'error');
 }
 
 async function handleSignup() {
-  if (!isConfigured) { showError('signup-error', 'Please configure Supabase first.'); return; }
+  if (!isConfigured) { showAuthMsg('signup','Please configure Supabase first.','error'); return; }
   clearMessages('signup');
   const name = document.getElementById('signup-name').value.trim();
   const email = document.getElementById('signup-email').value.trim();
-  const password = document.getElementById('signup-pass').value;
-  if (!name || !email || !password) { showError('signup-error', 'Please fill in all fields.'); return; }
-  if (password.length < 6) { showError('signup-error', 'Password must be at least 6 characters.'); return; }
-
-  setLoading('signup-btn', true, 'Create account →');
-  const { error } = await supabase.auth.signUp({
-    email, password,
-    options: { data: { full_name: name } }
-  });
-  setLoading('signup-btn', false, 'Create account →');
-
-  if (error) { showError('signup-error', error.message); }
-  else { showSuccess('signup-success', 'Account created! Check your email to confirm your account, then sign in.'); }
+  const pass = document.getElementById('signup-pass').value;
+  if (!name || !email || !pass) { showAuthMsg('signup','Please fill in all fields.','error'); return; }
+  if (pass.length < 6) { showAuthMsg('signup','Password must be at least 6 characters.','error'); return; }
+  setBtnLoading('signup-btn', true, 'Create account →');
+  const { error } = await supabase.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  setBtnLoading('signup-btn', false, 'Create account →');
+  if (error) showAuthMsg('signup', error.message, 'error');
+  else showAuthMsg('signup', 'Account created! Check your email to confirm, then sign in.', 'success');
 }
 
 async function handleGoogleLogin() {
   if (!isConfigured) { alert('Please configure Supabase first.'); return; }
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.href }
-  });
+  await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
 }
 
 async function handleReset() {
-  if (!isConfigured) { showError('reset-error', 'Please configure Supabase first.'); return; }
+  if (!isConfigured) { showAuthMsg('reset','Please configure Supabase first.','error'); return; }
   clearMessages('reset');
   const email = document.getElementById('reset-email').value.trim();
-  if (!email) { showError('reset-error', 'Please enter your email address.'); return; }
-
-  setLoading('reset-btn', true, 'Send reset link →');
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.href
-  });
-  setLoading('reset-btn', false, 'Send reset link →');
-
-  if (error) { showError('reset-error', error.message); }
-  else { showSuccess('reset-success', 'Reset link sent! Check your email inbox.'); }
+  if (!email) { showAuthMsg('reset','Please enter your email address.','error'); return; }
+  setBtnLoading('reset-btn', true, 'Send reset link →');
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+  setBtnLoading('reset-btn', false, 'Send reset link →');
+  if (error) showAuthMsg('reset', error.message, 'error');
+  else showAuthMsg('reset', 'Reset link sent! Check your email inbox.', 'success');
 }
 
 async function logout() {
-  if (supabase) { await supabase.auth.signOut(); }
+  if (supabase) await supabase.auth.signOut();
   exitApp();
 }
 
-// ── UI HELPERS ────────────────────────────────────────────
 function switchTab(tab) {
   const tabs = ['login','signup','reset'];
-  const resetTab = document.getElementById('reset-tab');
-  resetTab.style.display = tab === 'reset' ? 'block' : 'none';
-
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  const tabIndex = tabs.indexOf(tab);
-  document.querySelectorAll('.auth-tab')[tabIndex]?.classList.add('active');
-
-  tabs.forEach(t => {
-    const el = document.getElementById(t+'-form');
-    if (el) el.style.display = t === tab ? 'flex' : 'none';
-  });
-  ['login','signup','reset'].forEach(t => clearMessages(t));
+  document.getElementById('reset-tab').style.display = tab === 'reset' ? 'block' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', tabs[i] === tab));
+  tabs.forEach(t => { const el = document.getElementById(t+'-form'); if (el) el.style.display = t === tab ? 'flex' : 'none'; });
+  tabs.forEach(t => clearMessages(t));
 }
 
+// ── NAVIGATION ────────────────────────────────────────────
+const pageMeta = {
+  dashboard: ['Dashboard','Your BPO operations at a glance'],
+  generator: ['AI Proposal Generator','Generate winning proposals instantly'],
+  proposals: ['Proposals','Track every proposal you send'],
+  pipeline: ['Pipeline','Manage deals from proposal to payment'],
+  team: ['Dev Team','Your outsourced developer network'],
+  admin: ['Admin Panel','Platform management & settings'],
+};
+
+function showPage(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = pageMeta[id][0];
+  document.getElementById('page-sub').textContent = pageMeta[id][1];
+}
+
+// ── PROPOSALS ─────────────────────────────────────────────
 function renderProposals(filter = 'all') {
   const body = document.getElementById('proposals-body');
-  const filtered = filter === 'all' ? proposalsData : proposalsData.filter(p => p.status === filter);
-  body.innerHTML = filtered.map(p => `
-    <tr>
-      <td>${p.job}</td><td>${p.platform}</td><td>${p.niche}</td>
-      <td>${p.budget}</td><td>${p.margin}</td>
-      <td><span class="badge badge-${p.status}">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</span></td>
-    </tr>`).join('');
+  const list = filter === 'all' ? proposalsData : proposalsData.filter(p => p.status === filter);
+  body.innerHTML = list.map(p => `<tr><td>${p.job}</td><td>${p.platform}</td><td>${p.niche}</td><td>${p.budget}</td><td>${p.margin}</td><td><span class="badge badge-${p.status}">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</span></td></tr>`).join('');
 }
-
 function filterProposals(val) { renderProposals(val); }
 
-const pageMeta = {
-  dashboard: ['Dashboard', 'Your BPO operations at a glance'],
-  generator: ['AI Proposal Generator', 'Generate winning proposals instantly'],
-  proposals: ['Proposals', 'Track every proposal you send'],
-  pipeline: ['Pipeline', 'Manage deals from proposal to payment'],
-  team: ['Dev Team', 'Your outsourced developer network'],
-  admin: ['Admin Panel', 'Platform management & settings'],
-};
-
-function showPage(id, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  if (el) el.classList.add('active');
-  document.getElementById('page-title').textContent = pageMeta[id][0];
-  document.getElementById('page-sub').textContent = pageMeta[id][1];
-}
-
+// ── AI GENERATOR ──────────────────────────────────────────
 async function generateProposal() {
   const desc = document.getElementById('g-desc').value.trim();
   if (!desc) { alert('Please paste a job description first.'); return; }
@@ -810,152 +613,44 @@ async function generateProposal() {
   const budget = document.getElementById('g-budget').value;
   const tone = document.getElementById('g-tone').value;
   const devRate = document.getElementById('g-rate').value;
-
   const out = document.getElementById('g-output');
-  out.innerHTML = '<span class="loading">Generating your proposal</span>';
-  document.getElementById('copy-btn').style.display = 'none';
-  document.getElementById('regen-btn').style.display = 'none';
-  document.getElementById('quick-actions').style.display = 'none';
-  document.getElementById('margin-display').style.display = 'none';
-
+  out.innerHTML = '<span class="loading-text">Generating your proposal</span>';
+  ['copy-btn','regen-btn','quick-actions','margin-display'].forEach(id => { document.getElementById(id).style.display='none'; });
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: `You are an expert BPO proposal writer. Write a personalized, high-converting proposal for this job.\n\nPlatform: ${platform}\nNiche: ${niche}\nBudget: ${budget||'unspecified'}\nTone: ${tone}\n\nJob description:\n${desc}\n\nRules:\n- Open with a hook showing you read the job\n- Be specific to their needs\n- Keep it 150-250 words\n- End with a clear CTA\n- No generic openers like "I am writing to express my interest"\n- Sound human, not robotic\n\nReturn ONLY the proposal text.` }] })
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+        messages: [{ role: 'user', content: `You are an expert BPO proposal writer. Write a personalized, high-converting proposal.\n\nPlatform: ${platform}\nNiche: ${niche}\nBudget: ${budget||'unspecified'}\nTone: ${tone}\n\nJob:\n${desc}\n\nRules: open with a hook, be specific, 150-250 words, clear CTA, no generic openers, sound human.\n\nReturn ONLY the proposal text.` }]
+      })
     });
     const data = await res.json();
-    const text = data.content.map(b => b.text||'').join('');
-    out.textContent = text;
+    out.textContent = data.content.map(b => b.text||'').join('');
     document.getElementById('copy-btn').style.display = 'inline-flex';
     document.getElementById('regen-btn').style.display = 'inline-flex';
     document.getElementById('quick-actions').style.display = 'flex';
-
     if (budget && devRate) {
-      const clientAmt = parseFloat(budget.replace(/[^0-9.]/g,''));
-      const devAmt = parseFloat(devRate.replace(/[^0-9.]/g,''));
-      if (clientAmt && devAmt && clientAmt > devAmt) {
-        const margin = Math.round(((clientAmt - devAmt) / clientAmt) * 100);
-        document.getElementById('margin-val').textContent = `$${Math.round(clientAmt - devAmt)} (${margin}% margin)`;
+      const c = parseFloat(budget.replace(/[^0-9.]/g,'')), d = parseFloat(devRate.replace(/[^0-9.]/g,''));
+      if (c && d && c > d) {
+        document.getElementById('margin-val').textContent = `$${Math.round(c-d)} (${Math.round(((c-d)/c)*100)}% margin)`;
         document.getElementById('margin-display').style.display = 'block';
       }
     }
-
     genCount++;
     document.getElementById('admin-gen-count').textContent = genCount;
     document.getElementById('admin-user-gen').textContent = genCount;
-  } catch(e) {
-    out.textContent = 'Something went wrong. Please try again.';
-  }
+  } catch(e) { out.textContent = 'Something went wrong. Please try again.'; }
 }
 
 function copyProposal() {
   navigator.clipboard.writeText(document.getElementById('g-output').textContent).catch(()=>{});
   const btn = document.getElementById('copy-btn');
-  btn.textContent = 'Copied!';
-  setTimeout(() => btn.textContent = 'Copy', 2000);
+  btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
 }
 
 function clearGen() {
-  document.getElementById('g-desc').value = '';
-  document.getElementById('g-budget').value = '';
-  document.getElementById('g-rate').value = '';
+  ['g-desc','g-budget','g-rate'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('g-output').textContent = 'Your proposal will appear here after generation...';
-  document.getElementById('copy-btn').style.display = 'none';
-  document.getElementById('regen-btn').style.display = 'none';
-  document.getElementById('quick-actions').style.display = 'none';
-  document.getElementById('margin-display').style.display = 'none';
-}
-
-// ── PAGE NAV ──────────────────────────────────────────────
-const pageMeta = {
-  dashboard: ['Dashboard', 'Your BPO operations at a glance'],
-  generator: ['AI Proposal Generator', 'Generate winning proposals instantly'],
-  proposals: ['Proposals', 'Track every proposal you send'],
-  pipeline: ['Pipeline', 'Manage deals from proposal to payment'],
-  team: ['Dev Team', 'Your outsourced developer network'],
-  admin: ['Admin Panel', 'Platform management & settings'],
-};
-
-function showPage(id, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  if (el) el.classList.add('active');
-  document.getElementById('page-title').textContent = pageMeta[id][0];
-  document.getElementById('page-sub').textContent = pageMeta[id][1];
-}
-
-// ── PROPOSAL GENERATOR ────────────────────────────────────
-async function generateProposal() {
-  const desc = document.getElementById('g-desc').value.trim();
-  if (!desc) { alert('Please paste a job description first.'); return; }
-  const platform = document.getElementById('g-platform').value;
-  const niche = document.getElementById('g-niche').value;
-  const budget = document.getElementById('g-budget').value;
-  const tone = document.getElementById('g-tone').value;
-  const devRate = document.getElementById('g-rate').value;
-
-  const out = document.getElementById('g-output');
-  out.innerHTML = '<span class="loading">Generating your proposal</span>';
-  document.getElementById('copy-btn').style.display = 'none';
-  document.getElementById('regen-btn').style.display = 'none';
-  document.getElementById('quick-actions').style.display = 'none';
-  document.getElementById('margin-display').style.display = 'none';
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: `You are an expert BPO proposal writer. Write a personalized, high-converting proposal for this job.\n\nPlatform: ${platform}\nNiche: ${niche}\nBudget: ${budget||'unspecified'}\nTone: ${tone}\n\nJob description:\n${desc}\n\nRules:\n- Open with a hook showing you read the job\n- Be specific to their needs\n- Keep it 150-250 words\n- End with a clear CTA\n- No generic openers like "I am writing to express my interest"\n- Sound human, not robotic\n\nReturn ONLY the proposal text.` }] })
-    });
-    const data = await res.json();
-    const text = data.content.map(b => b.text||'').join('');
-    out.textContent = text;
-    document.getElementById('copy-btn').style.display = 'inline-flex';
-    document.getElementById('regen-btn').style.display = 'inline-flex';
-    document.getElementById('quick-actions').style.display = 'flex';
-
-    if (budget && devRate) {
-      const clientAmt = parseFloat(budget.replace(/[^0-9.]/g,''));
-      const devAmt = parseFloat(devRate.replace(/[^0-9.]/g,''));
-      if (clientAmt && devAmt && clientAmt > devAmt) {
-        const margin = Math.round(((clientAmt - devAmt) / clientAmt) * 100);
-        document.getElementById('margin-val').textContent = `$${Math.round(clientAmt - devAmt)} (${margin}% margin)`;
-        document.getElementById('margin-display').style.display = 'block';
-      }
-    }
-
-    genCount++;
-    document.getElementById('admin-gen-count').textContent = genCount;
-    document.getElementById('admin-user-gen').textContent = genCount;
-  } catch(e) {
-    out.textContent = 'Something went wrong. Please try again.';
-  }
-}
-
-function copyProposal() {
-  navigator.clipboard.writeText(document.getElementById('g-output').textContent).catch(()=>{});
-  const btn = document.getElementById('copy-btn');
-  btn.textContent = 'Copied!';
-  setTimeout(() => btn.textContent = 'Copy', 2000);
-}
-
-function clearGen() {
-  document.getElementById('g-desc').value = '';
-  document.getElementById('g-budget').value = '';
-  document.getElementById('g-rate').value = '';
-  document.getElementById('g-output').textContent = 'Your proposal will appear here after generation...';
-  document.getElementById('copy-btn').style.display = 'none';
-  document.getElementById('regen-btn').style.display = 'none';
-  document.getElementById('quick-actions').style.display = 'none';
-  document.getElementById('margin-display').style.display = 'none';
+  ['copy-btn','regen-btn','quick-actions','margin-display'].forEach(id => { document.getElementById(id).style.display='none'; });
 }
 
 // ── CHARTS ────────────────────────────────────────────────
@@ -975,12 +670,12 @@ function initCharts() {
   });
   new Chart(document.getElementById('pipeline-chart'), {
     type: 'bar',
-    data: { labels: ['Jan','Feb','Mar','Apr'], datasets: [{ label: 'Revenue ($)', data:[0,380,1200,2150], backgroundColor:'#d4521a', borderRadius:6 }]},
+    data: { labels: ['Jan','Feb','Mar','Apr'], datasets: [{ label:'Revenue ($)', data:[0,380,1200,2150], backgroundColor:'#d4521a', borderRadius:6 }]},
     options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(0,0,0,0.05)'}}} }
   });
 }
 
-// ── KICK OFF ─────────────────────────────────────────────
+// ── START ─────────────────────────────────────────────────
 initAuth();
 </script>
 </body>
