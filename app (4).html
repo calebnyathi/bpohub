@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BPO Hub — App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --ink: #0a0a0a; --paper: #f5f2eb; --accent: #d4521a; --accent2: #1a6dd4;
+    --muted: #6b6760; --border: rgba(10,10,10,0.1); --card: #fff;
+    --sidebar-w: 220px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); }
+
+  /* LOADING */
+  #loading-screen { position: fixed; inset: 0; background: var(--paper); display: flex; align-items: center; justify-content: center; z-index: 300; }
+  .loading-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; }
+  .loading-logo span { color: var(--accent); }
+  .loading-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 2px; animation: bounce 1.2s ease-in-out infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:0.4} 40%{transform:translateY(-6px);opacity:1} }
+
+  /* AUTH */
+  #auth-screen { position: fixed; inset: 0; background: var(--paper); display: none; align-items: center; justify-content: center; z-index: 200; }
+  .auth-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 420px; }
+  .auth-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .auth-logo span { color: var(--accent); }
+  .auth-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; }
+  .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .auth-tab { padding: 0.5rem 1.25rem; font-size: 0.9rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; background: none; border-top: none; border-left: none; border-right: none; }
+  .auth-tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 500; }
+  .auth-form { display: flex; flex-direction: column; gap: 12px; }
+  .auth-form input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); outline: none; transition: border-color 0.2s; }
+  .auth-form input:focus { border-color: var(--accent); }
+  .auth-btn { background: var(--ink); color: var(--paper); padding: 11px; border-radius: 100px; border: none; cursor: pointer; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: background 0.2s; margin-top: 4px; }
+  .auth-btn:hover { background: var(--accent); }
+  .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .auth-error { font-size: 0.82rem; color: #c0392b; background: #fcebeb; border-radius: 8px; padding: 8px 12px; display: none; }
+  .auth-success { font-size: 0.82rem; color: #27500a; background: #eaf3de; border-radius: 8px; padding: 8px 12px; display: none; }
+  .auth-msg { font-size: 0.8rem; color: var(--muted); text-align: center; margin-top: 4px; }
+  .auth-link { color: var(--accent); cursor: pointer; text-decoration: underline; }
+  .auth-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+  .auth-divider::before, .auth-divider::after { content:''; flex:1; height: 1px; background: var(--border); }
+  .auth-divider span { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+  .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 100px; cursor: pointer; background: var(--card); font-size: 0.9rem; font-family: 'DM Sans', sans-serif; transition: background 0.2s; width: 100%; }
+  .google-btn:hover { background: var(--paper); }
+  .reset-link { font-size: 0.8rem; color: var(--accent); cursor: pointer; text-align: right; text-decoration: underline; margin-top: -4px; }
+
+  /* APP */
+  #app-screen { display: none; height: 100vh; overflow: hidden; }
+  .app-wrap { display: flex; height: 100vh; }
+  .sidebar { width: var(--sidebar-w); background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+  .sidebar-logo { padding: 1.25rem 1.25rem 1rem; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; border-bottom: 1px solid var(--border); }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-logo small { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 400; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar-section { padding: 1rem 0.75rem 0.25rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin: 1px 8px; border-radius: 8px; cursor: pointer; font-size: 0.875rem; color: var(--muted); transition: all 0.15s; }
+  .nav-item:hover { background: var(--paper); color: var(--ink); }
+  .nav-item.active { background: var(--ink); color: var(--paper); }
+  .nav-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
+  .nav-badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 0.65rem; padding: 1px 6px; border-radius: 100px; font-weight: 600; }
+  .sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid var(--border); }
+  .user-pill { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; cursor: pointer; transition: background 0.15s; }
+  .user-pill:hover { background: var(--paper); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--paper); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; }
+  .user-name { font-size: 0.85rem; font-weight: 500; }
+  .user-plan { font-size: 0.7rem; color: var(--muted); }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .topbar-left h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+  .topbar-left p { font-size: 0.8rem; color: var(--muted); }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .btn { padding: 7px 14px; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 100px; cursor: pointer; background: transparent; color: var(--ink); font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--paper); }
+  .btn-accent { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn-accent:hover { background: var(--accent); border-color: var(--accent); }
+  .btn-danger { background: #fcebeb; color: #791f1f; border-color: #f09595; }
+  .btn-danger:hover { background: #f7c1c1; }
+  .content { flex: 1; overflow-y: auto; padding: 1.5rem; background: var(--paper); }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
+  .metric-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+  .metric-value { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 700; }
+  .metric-change { font-size: 0.75rem; margin-top: 4px; color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { text-align: left; padding: 8px 12px; font-size: 0.7rem; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.06em; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--paper); }
+
+  /* BADGES */
+  .badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 100px; font-weight: 600; }
+  .badge-sent { background: #e6f1fb; color: #185fa5; }
+  .badge-replied { background: #eaf3de; color: #27500a; }
+  .badge-closed { background: #eeedfe; color: #3c3489; }
+  .badge-lost { background: #fcebeb; color: #791f1f; }
+  .badge-pending { background: #f1efe8; color: #5f5e5a; }
+  .badge-active { background: #eaf3de; color: #27500a; }
+
+  /* PIPELINE */
+  .pipeline-cols { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .pipeline-col { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; min-height: 200px; }
+  .pipeline-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .pipeline-col-title { font-size: 0.8rem; font-weight: 600; }
+  .pipeline-col-count { font-size: 0.7rem; background: var(--paper); padding: 2px 8px; border-radius: 100px; color: var(--muted); }
+  .pipeline-deal { background: var(--paper); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .deal-title { font-size: 0.8rem; font-weight: 500; margin-bottom: 4px; }
+  .deal-value { font-size: 0.75rem; color: var(--accent); font-weight: 600; }
+  .deal-client { font-size: 0.7rem; color: var(--muted); }
+
+  /* DEV CARDS */
+  .dev-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; }
+  .dev-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+  .dev-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .dev-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; flex-shrink: 0; background: #e6f1fb; color: #185fa5; }
+  .dev-name { font-weight: 600; font-size: 0.95rem; }
+  .dev-skill { font-size: 0.78rem; color: var(--muted); }
+  .dev-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+  .dev-stat { background: var(--paper); border-radius: 8px; padding: 8px; text-align: center; }
+  .dev-stat-val { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+  .dev-stat-label { font-size: 0.65rem; color: var(--muted); }
+
+  /* FORMS */
+  .gen-form { display: flex; flex-direction: column; gap: 12px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.875rem; font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: none; line-height: 1.6; }
+  .output-area { background: var(--paper); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; font-size: 0.875rem; line-height: 1.8; min-height: 140px; white-space: pre-wrap; color: var(--ink); }
+  .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* MODAL */
+  .modal-bg { position: fixed; inset: 0; background: rgba(10,10,10,0.5); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .modal { background: var(--card); border-radius: 16px; padding: 2rem; width: 100%; max-width: 480px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+
+  /* MISC */
+  .tip { background: #e6f1fb; border-left: 3px solid var(--accent2); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 0.82rem; color: #185fa5; line-height: 1.6; margin-bottom: 1rem; }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.9rem; }
+  .empty-state p { margin-bottom: 1rem; }
+  .loading-text::after { content: '...'; animation: dots 1s steps(3) infinite; }
+  @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+  .spinning { display: inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .delete-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; }
+  .delete-btn:hover { color: #c0392b; background: #fcebeb; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div style="text-align:center;">
+    <div class="loading-logo">BPO<span>Hub</span></div>
+    <div style="margin-top:16px;">
+      <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">BPO<span>Hub</span></div>
+    <div class="auth-sub">Your AI-powered BPO command center</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Sign in</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Create account</button>
+      <button class="auth-tab" id="reset-tab" onclick="switchTab('reset')" style="display:none;">Reset password</button>
+    </div>
+
+    <div id="login-form" class="auth-form">
+      <div id="login-error" class="auth-error"></div>
+      <div id="login-success" class="auth-success"></div>
+      <input type="email" id="login-email" placeholder="Email address" autocomplete="email" />
+      <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password" />
+      <div class="reset-link" onclick="switchTab('reset')">Forgot password?</div>
+      <button class="auth-btn" id="login-btn" onclick="handleLogin()">Sign in →</button>
+      <div class="auth-divider"><span>or continue with</span></div>
+      <button class="google-btn" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.3z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <div id="signup-form" class="auth-form" style="display:none;">
+      <div id="signup-error" class="auth-error"></div>
+      <div id="signup-success" class="auth-success"></div>
+      <input type="text" id="signup-name" placeholder="Full name" autocomplete="name" />
+      <input type="email" id="signup-email" placeholder="Email address" autocomplete="email" />
+      <input type="password" id="signup-pass" placeholder="Create password (min 6 chars)" autocomplete="new-password" />
+      <button class="auth-btn" id="signup-btn" onclick="handleSignup()">Create account →</button>
+      <div class="auth-divider"><span>or continue with</span></div>
+      <button class="google-btn" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.3z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <div id="reset-form" class="auth-form" style="display:none;">
+      <div id="reset-error" class="auth-error"></div>
+      <div id="reset-success" class="auth-success"></div>
+      <p style="font-size:0.85rem;color:var(--muted);">Enter your email and we'll send a reset link.</p>
+      <input type="email" id="reset-email" placeholder="Email address" />
+      <button class="auth-btn" id="reset-btn" onclick="handleReset()">Send reset link →</button>
+      <div class="auth-msg"><span class="auth-link" onclick="switchTab('login')">← Back to sign in</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="app-wrap">
+    <div class="sidebar">
+      <div class="sidebar-logo">BPO<span>Hub</span><small id="user-email-display">loading...</small></div>
+      <div style="padding:0.5rem 0;">
+        <div class="sidebar-section">Main</div>
+        <div class="nav-item active" onclick="showPage('dashboard',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="7" height="7" rx="1.5"/><rect x="10" y="1" width="7" height="7" rx="1.5"/><rect x="1" y="10" width="7" height="7" rx="1.5"/><rect x="10" y="10" width="7" height="7" rx="1.5"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('generator',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 6v3l2 2"/></svg>
+          AI Generator <span class="nav-badge">AI</span>
+        </div>
+        <div class="sidebar-section">Track</div>
+        <div class="nav-item" onclick="showPage('proposals',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h12M3 9h8M3 14h10"/></svg>
+          Proposals
+        </div>
+        <div class="nav-item" onclick="showPage('pipeline',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 16V7l5-5h9v14H2z"/><path d="M7 2v5H2"/></svg>
+          Pipeline
+        </div>
+        <div class="sidebar-section">Team</div>
+        <div class="nav-item" onclick="showPage('team',this)">
+          <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="6" r="3.5"/><path d="M1 16c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="14" cy="6" r="2.5"/><path d="M17 16c0-2.5-1.5-4-3-4.5"/></svg>
+          Dev Team
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-pill" onclick="logout()">
+          <div class="user-avatar" id="user-av">?</div>
+          <div><div class="user-name" id="user-name-display">Loading...</div><div class="user-plan">Free plan · Sign out</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2 id="page-title">Dashboard</h2>
+          <p id="page-sub">Your BPO operations at a glance</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="showPage('proposals',document.querySelectorAll('.nav-item')[2])">View proposals</button>
+          <button class="btn btn-accent" onclick="showPage('generator',document.querySelectorAll('.nav-item')[1])">+ Generate proposal</button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="section active" id="page-dashboard">
+          <div class="metrics">
+            <div class="metric-card"><div class="metric-label">Total proposals sent</div><div class="metric-value" id="stat-total">0</div><div class="metric-change">all time</div></div>
+            <div class="metric-card"><div class="metric-label">Replies received</div><div class="metric-value" id="stat-replied">0</div><div class="metric-change" id="stat-rate">0% response rate</div></div>
+            <div class="metric-card"><div class="metric-label">Deals closed</div><div class="metric-value" id="stat-closed">0</div><div class="metric-change">won jobs</div></div>
+            <div class="metric-card"><div class="metric-label">Developers on team</div><div class="metric-value" id="stat-devs">0</div><div class="metric-change">active</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent proposals</div><button class="btn" onclick="showPage('proposals',document.querySelectorAll('.nav-item')[2])">View all</button></div>
+            <div id="dash-recent"></div>
+          </div>
+        </div>
+
+        <!-- AI GENERATOR -->
+        <div class="section" id="page-generator">
+          <div class="tip">Paste a job description and get a tailored proposal in seconds. After generating, you can save it directly to your proposals tracker.</div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Job details</div></div>
+              <div class="gen-form">
+                <div class="form-row">
+                  <div class="form-group"><label>Platform</label><select id="g-platform"><option>Upwork</option><option>Freelancer</option><option>Fiverr</option><option>LinkedIn</option></select></div>
+                  <div class="form-group"><label>Niche</label><select id="g-niche"><option>Web development</option><option>App development</option><option>UI/UX design</option><option>E-commerce</option><option>Other</option></select></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group"><label>Client budget (USD)</label><input type="text" id="g-budget" placeholder="e.g. $500" /></div>
+                  <div class="form-group"><label>Your dev rate (for margin)</label><input type="text" id="g-rate" placeholder="e.g. $300" /></div>
+                </div>
+                <div class="form-group"><label>Tone</label><select id="g-tone"><option>Professional & confident</option><option>Friendly & conversational</option><option>Direct & concise</option><option>Enthusiastic</option></select></div>
+                <div class="form-group"><label>Job description</label><textarea id="g-desc" rows="7" placeholder="Paste the full job description here..."></textarea></div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-accent" onclick="generateProposal()" style="flex:1;">Generate proposal →</button>
+                  <button class="btn" onclick="clearGen()">Clear</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Generated proposal</div>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn" onclick="copyProposal()" id="copy-btn" style="display:none;">Copy</button>
+                  <button class="btn" onclick="generateProposal()" id="regen-btn" style="display:none;">Regenerate</button>
+                </div>
+              </div>
+              <div class="output-area" id="g-output">Your proposal will appear here after generation...</div>
+              <div id="margin-display" style="display:none;margin-top:12px;padding:10px 14px;background:var(--paper);border-radius:8px;font-size:0.82rem;">
+                <span style="color:var(--muted);">Estimated margin:</span> <strong id="margin-val" style="color:var(--accent);"></strong>
+              </div>
+              <div id="save-proposal-area" style="display:none;margin-top:12px;">
+                <div class="form-group"><label>Job title (to save to tracker)</label><input type="text" id="g-job-title" placeholder="e.g. React dashboard for SaaS startup" /></div>
+                <div style="display:flex;gap:8px;margin-top:8px;">
+                  <button class="btn btn-accent" onclick="saveProposal()" style="flex:1;">Save to proposals ✓</button>
+                </div>
+                <div id="save-msg" style="font-size:0.8rem;margin-top:6px;display:none;"></div>
+              </div>
+              <div class="quick-actions" id="quick-actions" style="display:none;margin-top:8px;">
+                <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('Give me 3 follow-up message variations for a client who has not replied to my BPO proposal on Upwork')">Follow-up messages ↗</button>
+                <button class="btn" style="font-size:0.78rem;" onclick="sendPrompt('What negotiation tactics should I use when a client says my price is too high?')">Negotiation tips ↗</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROPOSALS -->
+        <div class="section" id="page-proposals">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">All proposals</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="filter-status" style="font-size:0.8rem;padding:5px 10px;border:1px solid var(--border);border-radius:100px;background:var(--paper);color:var(--ink);" onchange="loadProposals()">
+                  <option value="all">All statuses</option><option value="sent">Sent</option><option value="replied">Replied</option><option value="closed">Closed</option><option value="lost">Lost</option>
+                </select>
+                <button class="btn btn-accent" onclick="showPage('generator',document.querySelectorAll('.nav-item')[1])">+ New</button>
+              </div>
+            </div>
+            <div id="proposals-container">
+              <div class="empty-state"><p>Loading proposals...</p></div>
+            </div>
+          </div>
+          <!-- Add deal to pipeline modal trigger -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Add deal to pipeline</div></div>
+            <div class="gen-form">
+              <div class="form-row">
+                <div class="form-group"><label>Job / project title</label><input type="text" id="deal-title" placeholder="e.g. React dashboard" /></div>
+                <div class="form-group"><label>Client name</label><input type="text" id="deal-client" placeholder="e.g. TechStart Inc." /></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>Value (USD)</label><input type="text" id="deal-value" placeholder="e.g. $850" /></div>
+                <div class="form-group"><label>Stage</label>
+                  <select id="deal-stage">
+                    <option value="sent">Proposal sent</option>
+                    <option value="negotiating">Negotiating</option>
+                    <option value="contract">Contract sent</option>
+                    <option value="closed">Closed / won</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-accent" onclick="addDeal()" style="width:fit-content;">Add to pipeline →</button>
+              <div id="deal-msg" style="font-size:0.8rem;display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIPELINE -->
+        <div class="section" id="page-pipeline">
+          <div class="pipeline-cols" id="pipeline-board">
+            <div class="pipeline-col"><div class="pipeline-col-header"><div class="pipeline-col-title">Proposal sent</div><div class="pipeline-col-count" id="col-count-sent">0</div></div><div id="col-sent"></div></div>
+            <div class="pipeline-col"><div class="pipeline-col-header"><div class="pipeline-col-title">Negotiating</div><div class="pipeline-col-count" id="col-count-negotiating">0</div></div><div id="col-negotiating"></div></div>
+            <div class="pipeline-col"><div class="pipeline-col-header"><div class="pipeline-col-title">Contract sent</div><div class="pipeline-col-count" id="col-count-contract">0</div></div><div id="col-contract"></div></div>
+            <div class="pipeline-col"><div class="pipeline-col-header"><div class="pipeline-col-title">Closed / won</div><div class="pipeline-col-count" id="col-count-closed">0</div></div><div id="col-closed"></div></div>
+          </div>
+        </div>
+
+        <!-- TEAM -->
+        <div class="section" id="page-team">
+          <div class="tip">Add your outsourced developers here. Track their skills, rate, and performance so you always know who to assign work to.</div>
+          <div id="dev-grid-container" class="dev-grid" style="margin-bottom:1rem;"></div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Add a developer</div></div>
+            <div class="gen-form">
+              <div class="form-row">
+                <div class="form-group"><label>Full name</label><input type="text" id="dev-name" placeholder="e.g. Thabo M." /></div>
+                <div class="form-group"><label>Skills</label><input type="text" id="dev-skills" placeholder="e.g. React, Node.js" /></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>Hourly rate</label><input type="text" id="dev-rate" placeholder="e.g. $25/hr" /></div>
+                <div class="form-group"><label>Rating (out of 5)</label><input type="number" id="dev-rating" placeholder="5.0" min="1" max="5" step="0.1" /></div>
+              </div>
+              <button class="btn btn-accent" onclick="addDeveloper()" style="width:fit-content;">Add developer →</button>
+              <div id="dev-msg" style="font-size:0.8rem;display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+const SUPABASE_URL = 'https://bjzzxwomxgnknblbkzuf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqenp4d29teGdua25ibGJrenVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNzI2MjYsImV4cCI6MjA5MDc0ODYyNn0.hi67wN1z5MbzXNxUUiL_BslASTs1GRXlVLZWOPe2f-8';
+
+let _supabase = null;
+let currentUser = null;
+let chartsInitialized = false;
+
+// ── AUTH ──────────────────────────────────────────────────
+async function initAuth() {
+  _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data: { session } } = await _supabase.auth.getSession();
+  document.getElementById('loading-screen').style.display = 'none';
+  if (session?.user) { enterApp(session.user); }
+  else { document.getElementById('auth-screen').style.display = 'flex'; }
+  _supabase.auth.onAuthStateChange((_e, session) => {
+    if (session?.user) { enterApp(session.user); } else { exitApp(); }
+  });
+}
+
+async function enterApp(user) {
+  currentUser = user;
+  const name = user.user_metadata?.full_name || user.email.split('@')[0];
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('user-email-display').textContent = user.email;
+  document.getElementById('user-name-display').textContent = name;
+  document.getElementById('user-av').textContent = name[0].toUpperCase();
+  await loadDashboard();
+}
+
+function exitApp() {
+  currentUser = null;
+  chartsInitialized = false;
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// ── AUTH HANDLERS ─────────────────────────────────────────
+function showAuthMsg(prefix, msg, type) {
+  const el = document.getElementById(prefix+'-'+type);
+  el.textContent = msg; el.style.display = 'block';
+}
+function clearAuthMsgs(prefix) {
+  ['error','success'].forEach(t => { const el = document.getElementById(prefix+'-'+t); if(el){el.textContent='';el.style.display='none';} });
+}
+function setBtnLoading(id, loading, label) {
+  const b = document.getElementById(id); b.disabled = loading; b.textContent = loading ? 'Please wait...' : label;
+}
+
+async function handleLogin() {
+  clearAuthMsgs('login');
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAuthMsg('login','Please fill in all fields.','error'); return; }
+  setBtnLoading('login-btn', true, 'Sign in →');
+  const { error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+  setBtnLoading('login-btn', false, 'Sign in →');
+  if (error) showAuthMsg('login', error.message, 'error');
+}
+
+async function handleSignup() {
+  clearAuthMsgs('signup');
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-pass').value;
+  if (!name || !email || !pass) { showAuthMsg('signup','Please fill in all fields.','error'); return; }
+  if (pass.length < 6) { showAuthMsg('signup','Password must be at least 6 characters.','error'); return; }
+  setBtnLoading('signup-btn', true, 'Create account →');
+  const { error } = await _supabase.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  setBtnLoading('signup-btn', false, 'Create account →');
+  if (error) showAuthMsg('signup', error.message, 'error');
+  else showAuthMsg('signup', '✓ Account created! Check your email to confirm, then sign in.', 'success');
+}
+
+async function handleGoogleLogin() {
+  await _supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+}
+
+async function handleReset() {
+  clearAuthMsgs('reset');
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) { showAuthMsg('reset','Please enter your email.','error'); return; }
+  setBtnLoading('reset-btn', true, 'Send reset link →');
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+  setBtnLoading('reset-btn', false, 'Send reset link →');
+  if (error) showAuthMsg('reset', error.message, 'error');
+  else showAuthMsg('reset', '✓ Reset link sent! Check your email.', 'success');
+}
+
+async function logout() {
+  await _supabase.auth.signOut();
+  exitApp();
+}
+
+function switchTab(tab) {
+  const tabs = ['login','signup','reset'];
+  document.getElementById('reset-tab').style.display = tab === 'reset' ? 'block' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', tabs[i] === tab));
+  tabs.forEach(t => { const el = document.getElementById(t+'-form'); if(el) el.style.display = t === tab ? 'flex' : 'none'; });
+  tabs.forEach(t => clearAuthMsgs(t));
+}
+
+// ── NAVIGATION ────────────────────────────────────────────
+const pageMeta = {
+  dashboard: ['Dashboard','Your BPO operations at a glance'],
+  generator: ['AI Proposal Generator','Generate winning proposals instantly'],
+  proposals: ['Proposals','Track every proposal you send'],
+  pipeline: ['Pipeline','Manage deals from proposal to payment'],
+  team: ['Dev Team','Your outsourced developer network'],
+};
+
+function showPage(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = pageMeta[id][0];
+  document.getElementById('page-sub').textContent = pageMeta[id][1];
+  if (id === 'proposals') loadProposals();
+  if (id === 'pipeline') loadPipeline();
+  if (id === 'team') loadTeam();
+  if (id === 'dashboard') loadDashboard();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────
+async function loadDashboard() {
+  if (!currentUser) return;
+  const uid = currentUser.id;
+
+  const [{ data: proposals }, { data: devs }] = await Promise.all([
+    _supabase.from('proposals').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
+    _supabase.from('developers').select('*').eq('user_id', uid),
+  ]);
+
+  const total = proposals?.length || 0;
+  const replied = proposals?.filter(p => p.status === 'replied' || p.status === 'closed').length || 0;
+  const closed = proposals?.filter(p => p.status === 'closed').length || 0;
+  const rate = total > 0 ? Math.round((replied/total)*100) : 0;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-replied').textContent = replied;
+  document.getElementById('stat-closed').textContent = closed;
+  document.getElementById('stat-devs').textContent = devs?.length || 0;
+  document.getElementById('stat-rate').textContent = rate + '% response rate';
+
+  const recent = document.getElementById('dash-recent');
+  if (!proposals || proposals.length === 0) {
+    recent.innerHTML = '<div class="empty-state"><p>No proposals yet.</p><p>Generate your first proposal using the AI Generator.</p></div>';
+    return;
+  }
+  recent.innerHTML = `<table><thead><tr><th>Job</th><th>Platform</th><th>Status</th><th>Date</th></tr></thead><tbody>
+    ${proposals.slice(0,5).map(p => `<tr>
+      <td>${p.job}</td><td>${p.platform||'—'}</td>
+      <td><span class="badge badge-${p.status}">${cap(p.status)}</span></td>
+      <td>${timeAgo(p.created_at)}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+// ── PROPOSALS ─────────────────────────────────────────────
+async function loadProposals() {
+  if (!currentUser) return;
+  const filter = document.getElementById('filter-status')?.value || 'all';
+  let query = _supabase.from('proposals').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  if (filter !== 'all') query = query.eq('status', filter);
+  const { data, error } = await query;
+  const container = document.getElementById('proposals-container');
+  if (error || !data || data.length === 0) {
+    container.innerHTML = '<div class="empty-state"><p>No proposals found.</p><p>Generate your first proposal with the AI Generator and save it here.</p></div>';
+    return;
+  }
+  container.innerHTML = `<table><thead><tr><th>Job</th><th>Platform</th><th>Niche</th><th>Budget</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody>
+    ${data.map(p => `<tr>
+      <td>${p.job}</td><td>${p.platform||'—'}</td><td>${p.niche||'—'}</td><td>${p.budget||'—'}</td>
+      <td>
+        <select onchange="updateProposalStatus('${p.id}', this.value)" style="font-size:0.75rem;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--paper);color:var(--ink);">
+          ${['sent','replied','closed','lost','pending'].map(s => `<option value="${s}" ${p.status===s?'selected':''}>${cap(s)}</option>`).join('')}
+        </select>
+      </td>
+      <td style="font-size:0.78rem;color:var(--muted);">${timeAgo(p.created_at)}</td>
+      <td><button class="delete-btn" onclick="deleteProposal('${p.id}')">✕</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+async function saveProposal() {
+  if (!currentUser) return;
+  const job = document.getElementById('g-job-title').value.trim();
+  if (!job) { showSaveMsg('Please enter a job title first.', false); return; }
+  const { error } = await _supabase.from('proposals').insert({
+    user_id: currentUser.id,
+    job,
+    platform: document.getElementById('g-platform').value,
+    niche: document.getElementById('g-niche').value,
+    budget: document.getElementById('g-budget').value,
+    status: 'sent'
+  });
+  if (error) { showSaveMsg('Error saving: ' + error.message, false); return; }
+  showSaveMsg('✓ Saved to proposals!', true);
+  document.getElementById('g-job-title').value = '';
+  loadDashboard();
+}
+
+async function updateProposalStatus(id, status) {
+  await _supabase.from('proposals').update({ status }).eq('id', id).eq('user_id', currentUser.id);
+  loadDashboard();
+}
+
+async function deleteProposal(id) {
+  if (!confirm('Delete this proposal?')) return;
+  await _supabase.from('proposals').delete().eq('id', id).eq('user_id', currentUser.id);
+  loadProposals(); loadDashboard();
+}
+
+function showSaveMsg(msg, success) {
+  const el = document.getElementById('save-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.color = success ? '#27500a' : '#c0392b';
+  if (success) setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+// ── PIPELINE ──────────────────────────────────────────────
+async function loadPipeline() {
+  if (!currentUser) return;
+  const { data } = await _supabase.from('deals').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  const stages = ['sent','negotiating','contract','closed'];
+  stages.forEach(stage => {
+    const deals = (data||[]).filter(d => d.stage === stage);
+    document.getElementById('col-count-'+stage).textContent = deals.length;
+    document.getElementById('col-'+stage).innerHTML = deals.length === 0
+      ? '<div style="font-size:0.78rem;color:var(--muted);text-align:center;padding:1rem 0;">No deals yet</div>'
+      : deals.map(d => `
+        <div class="pipeline-deal">
+          <div class="deal-title">${d.title}</div>
+          <div class="deal-client">${d.client||'—'}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+            <div class="deal-value">${d.value||'—'}</div>
+            <button class="delete-btn" onclick="deleteDeal('${d.id}')">✕</button>
+          </div>
+        </div>`).join('');
+  });
+}
+
+async function addDeal() {
+  if (!currentUser) return;
+  const title = document.getElementById('deal-title').value.trim();
+  if (!title) { showMsg('deal-msg','Please enter a job title.', false); return; }
+  const { error } = await _supabase.from('deals').insert({
+    user_id: currentUser.id,
+    title,
+    client: document.getElementById('deal-client').value,
+    value: document.getElementById('deal-value').value,
+    stage: document.getElementById('deal-stage').value,
+  });
+  if (error) { showMsg('deal-msg','Error: '+error.message, false); return; }
+  showMsg('deal-msg','✓ Deal added to pipeline!', true);
+  ['deal-title','deal-client','deal-value'].forEach(id => document.getElementById(id).value = '');
+  loadDashboard();
+}
+
+async function deleteDeal(id) {
+  if (!confirm('Remove this deal?')) return;
+  await _supabase.from('deals').delete().eq('id', id).eq('user_id', currentUser.id);
+  loadPipeline();
+}
+
+// ── TEAM ──────────────────────────────────────────────────
+async function loadTeam() {
+  if (!currentUser) return;
+  const { data } = await _supabase.from('developers').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  const container = document.getElementById('dev-grid-container');
+  if (!data || data.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><p>No developers yet. Add your first developer below.</p></div>';
+    return;
+  }
+  const colors = ['#e6f1fb:#185fa5','#e1f5ee:#0f6e56','#eeedfe:#534ab7','#faeeda:#633806','#fcebeb:#791f1f'];
+  container.innerHTML = data.map((d, i) => {
+    const [bg, fg] = colors[i % colors.length].split(':');
+    const initials = d.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const stars = '★'.repeat(Math.round(d.rating||5)) + '☆'.repeat(5-Math.round(d.rating||5));
+    return `<div class="dev-card">
+      <div class="dev-header">
+        <div class="dev-avatar" style="background:${bg};color:${fg};">${initials}</div>
+        <div>
+          <div class="dev-name">${d.name}</div>
+          <div class="dev-skill">${d.skills||'—'}</div>
+          <div style="color:var(--accent);font-size:0.8rem;">${stars} ${d.rating||5}</div>
+        </div>
+      </div>
+      <div class="dev-stats">
+        <div class="dev-stat"><div class="dev-stat-val">${d.jobs_done||0}</div><div class="dev-stat-label">Jobs done</div></div>
+        <div class="dev-stat"><div class="dev-stat-val">${d.on_time_pct||100}%</div><div class="dev-stat-label">On-time</div></div>
+        <div class="dev-stat"><div class="dev-stat-val">${d.rate||'—'}</div><div class="dev-stat-label">Rate</div></div>
+      </div>
+      <button class="delete-btn" onclick="deleteDeveloper('${d.id}')">Remove</button>
+    </div>`;
+  }).join('');
+}
+
+async function addDeveloper() {
+  if (!currentUser) return;
+  const name = document.getElementById('dev-name').value.trim();
+  if (!name) { showMsg('dev-msg','Please enter a name.', false); return; }
+  const { error } = await _supabase.from('developers').insert({
+    user_id: currentUser.id,
+    name,
+    skills: document.getElementById('dev-skills').value,
+    rate: document.getElementById('dev-rate').value,
+    rating: parseFloat(document.getElementById('dev-rating').value) || 5.0,
+  });
+  if (error) { showMsg('dev-msg','Error: '+error.message, false); return; }
+  showMsg('dev-msg','✓ Developer added!', true);
+  ['dev-name','dev-skills','dev-rate','dev-rating'].forEach(id => document.getElementById(id).value = '');
+  loadTeam(); loadDashboard();
+}
+
+async function deleteDeveloper(id) {
+  if (!confirm('Remove this developer?')) return;
+  await _supabase.from('developers').delete().eq('id', id).eq('user_id', currentUser.id);
+  loadTeam(); loadDashboard();
+}
+
+// ── AI GENERATOR ──────────────────────────────────────────
+async function generateProposal() {
+  const desc = document.getElementById('g-desc').value.trim();
+  if (!desc) { alert('Please paste a job description first.'); return; }
+  const platform = document.getElementById('g-platform').value;
+  const niche = document.getElementById('g-niche').value;
+  const budget = document.getElementById('g-budget').value;
+  const tone = document.getElementById('g-tone').value;
+  const devRate = document.getElementById('g-rate').value;
+  const out = document.getElementById('g-output');
+  out.innerHTML = '<span class="loading-text">Generating your proposal</span>';
+  ['copy-btn','regen-btn','quick-actions','margin-display','save-proposal-area'].forEach(id => { document.getElementById(id).style.display='none'; });
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+        messages: [{ role: 'user', content: `You are an expert BPO proposal writer. Write a personalized, high-converting proposal.\n\nPlatform: ${platform}\nNiche: ${niche}\nBudget: ${budget||'unspecified'}\nTone: ${tone}\n\nJob description:\n${desc}\n\nRules:\n- Hook opening showing you read the job\n- Specific to their needs\n- 150-250 words\n- Clear CTA at end\n- No generic openers\n- Sound human not robotic\n\nReturn ONLY the proposal text.` }]
+      })
+    });
+    const data = await res.json();
+    out.textContent = data.content.map(b => b.text||'').join('');
+    document.getElementById('copy-btn').style.display = 'inline-flex';
+    document.getElementById('regen-btn').style.display = 'inline-flex';
+    document.getElementById('quick-actions').style.display = 'flex';
+    document.getElementById('save-proposal-area').style.display = 'block';
+    if (budget && devRate) {
+      const c = parseFloat(budget.replace(/[^0-9.]/g,'')), d = parseFloat(devRate.replace(/[^0-9.]/g,''));
+      if (c && d && c > d) {
+        document.getElementById('margin-val').textContent = `$${Math.round(c-d)} (${Math.round(((c-d)/c)*100)}% margin)`;
+        document.getElementById('margin-display').style.display = 'block';
+      }
+    }
+  } catch(e) { out.textContent = 'Something went wrong. Please try again.'; }
+}
+
+function copyProposal() {
+  navigator.clipboard.writeText(document.getElementById('g-output').textContent).catch(()=>{});
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+function clearGen() {
+  ['g-desc','g-budget','g-rate','g-job-title'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('g-output').textContent = 'Your proposal will appear here after generation...';
+  ['copy-btn','regen-btn','quick-actions','margin-display','save-proposal-area'].forEach(id => { document.getElementById(id).style.display='none'; });
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function showMsg(elId, msg, success) {
+  const el = document.getElementById(elId);
+  el.textContent = msg; el.style.display = 'block';
+  el.style.color = success ? '#27500a' : '#c0392b';
+  if (success) setTimeout(() => { el.style.display='none'; }, 3000);
+}
+
+function cap(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const diff = Date.now() - new Date(ts).getTime();
+  const m = Math.floor(diff/60000), h = Math.floor(diff/3600000), d = Math.floor(diff/86400000);
+  if (d > 0) return d + 'd ago';
+  if (h > 0) return h + 'h ago';
+  if (m > 0) return m + 'm ago';
+  return 'just now';
+}
+
+// ── START ─────────────────────────────────────────────────
+function waitForSupabase(cb, tries) {
+  tries = tries || 0;
+  if (window.supabase && window.supabase.createClient) { cb(); }
+  else if (tries < 50) { setTimeout(function() { waitForSupabase(cb, tries+1); }, 100); }
+  else {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    alert('Failed to load Supabase. Please check your internet connection and refresh.');
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { waitForSupabase(initAuth); });
+} else {
+  waitForSupabase(initAuth);
+}
+</script>
+</body>
+</html>
